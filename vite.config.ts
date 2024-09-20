@@ -6,6 +6,9 @@ import { vitePlugin as remix } from '@remix-run/dev'
 export default defineConfig({
   plugins: [remix(), react(), tsconfigPaths()],
   publicDir: 'public',
+  server: {
+    port: parseInt(process.env.PORT || '3000'),
+  },
   css: {
     postcss: true,
   },

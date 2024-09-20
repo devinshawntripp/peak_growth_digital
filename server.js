@@ -3,6 +3,9 @@ import express from "express";
 
 const app = express();
 
+// Get the port from the environment variable or use 3000 as default
+const port = process.env.PORT || 3000;
+
 // needs to be called before the static middleware
 app.all(
   "*",
@@ -11,6 +14,6 @@ app.all(
   })
 );
 
-app.listen(3000, () => {
-  console.log("App listening on http://localhost:3000");
+app.listen(port, () => {
+  console.log(`App listening on http://localhost:${port}`);
 });
