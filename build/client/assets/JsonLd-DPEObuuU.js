@@ -1,0 +1,1 @@
+import{u as n,j as s}from"./index-CFzYG15F.js";function i({data:t}){const o={"@context":"https://schema.org","@type":"WebPage",url:`https://peakgrowthdigital.com${n().pathname}`,...t};return s.jsx("script",{type:"application/ld+json",dangerouslySetInnerHTML:{__html:JSON.stringify(o)}})}export{i as J};

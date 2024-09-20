@@ -1,0 +1,1 @@
+import{r as t}from"./index-CFzYG15F.js";const s=t.createContext(null),c=t.createContext({}),a=t.createContext({transformPagePoint:e=>e,isStatic:!1,reducedMotion:"never"}),n=typeof window<"u",u=n?t.useLayoutEffect:t.useEffect;function f(e){const o=t.useRef(null);return o.current===null&&(o.current=e()),o.current}export{c as L,a as M,s as P,u as a,n as i,f as u};

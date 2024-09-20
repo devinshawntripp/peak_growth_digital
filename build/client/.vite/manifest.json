@@ -1,0 +1,245 @@
+{
+  "_FAQSection-DixTOksr.js": {
+    "file": "assets/FAQSection-DixTOksr.js",
+    "name": "FAQSection",
+    "imports": [
+      "_index-CFzYG15F.js"
+    ]
+  },
+  "_JsonLd-DPEObuuU.js": {
+    "file": "assets/JsonLd-DPEObuuU.js",
+    "name": "JsonLd",
+    "imports": [
+      "_index-CFzYG15F.js"
+    ]
+  },
+  "_components-DMBqBoRK.js": {
+    "file": "assets/components-DMBqBoRK.js",
+    "name": "components",
+    "imports": [
+      "_index-CFzYG15F.js"
+    ]
+  },
+  "_index-CFzYG15F.js": {
+    "file": "assets/index-CFzYG15F.js",
+    "name": "index"
+  },
+  "_index-aWJx3OZ6.js": {
+    "file": "assets/index-aWJx3OZ6.js",
+    "name": "index",
+    "imports": [
+      "_index-CFzYG15F.js",
+      "_use-constant-DZc81Vim.js"
+    ]
+  },
+  "_proxy-CeJI3rgl.js": {
+    "file": "assets/proxy-CeJI3rgl.js",
+    "name": "proxy",
+    "imports": [
+      "_index-CFzYG15F.js",
+      "_use-constant-DZc81Vim.js"
+    ]
+  },
+  "_use-constant-DZc81Vim.js": {
+    "file": "assets/use-constant-DZc81Vim.js",
+    "name": "use-constant",
+    "imports": [
+      "_index-CFzYG15F.js"
+    ]
+  },
+  "app/entry.client.tsx": {
+    "file": "assets/entry.client-DTIDw1NP.js",
+    "name": "entry.client",
+    "src": "app/entry.client.tsx",
+    "isEntry": true,
+    "imports": [
+      "_index-CFzYG15F.js",
+      "_components-DMBqBoRK.js"
+    ]
+  },
+  "app/root.tsx?__remix-build-client-route": {
+    "file": "assets/root-Dz971uLq.js",
+    "name": "root",
+    "src": "app/root.tsx?__remix-build-client-route",
+    "isEntry": true,
+    "imports": [
+      "_index-CFzYG15F.js",
+      "_components-DMBqBoRK.js",
+      "_index-aWJx3OZ6.js",
+      "_use-constant-DZc81Vim.js"
+    ]
+  },
+  "app/routes/_index.tsx?__remix-build-client-route": {
+    "file": "assets/_index-CFNMVZ2m.js",
+    "name": "_index",
+    "src": "app/routes/_index.tsx?__remix-build-client-route",
+    "isEntry": true,
+    "imports": [
+      "_index-CFzYG15F.js",
+      "_JsonLd-DPEObuuU.js",
+      "_proxy-CeJI3rgl.js",
+      "_components-DMBqBoRK.js",
+      "_index-aWJx3OZ6.js",
+      "_use-constant-DZc81Vim.js"
+    ]
+  },
+  "app/routes/about.tsx?__remix-build-client-route": {
+    "file": "assets/about-DG1f08By.js",
+    "name": "about",
+    "src": "app/routes/about.tsx?__remix-build-client-route",
+    "isEntry": true,
+    "imports": [
+      "_index-CFzYG15F.js",
+      "_JsonLd-DPEObuuU.js",
+      "_proxy-CeJI3rgl.js",
+      "_use-constant-DZc81Vim.js"
+    ]
+  },
+  "app/routes/blog.$postId.tsx?__remix-build-client-route": {
+    "file": "assets/blog._postId-C_LtPl3q.js",
+    "name": "blog._postId",
+    "src": "app/routes/blog.$postId.tsx?__remix-build-client-route",
+    "isEntry": true,
+    "imports": [
+      "_index-CFzYG15F.js",
+      "_components-DMBqBoRK.js"
+    ]
+  },
+  "app/routes/blog._index.tsx?__remix-build-client-route": {
+    "file": "assets/blog._index-I8RjDVEI.js",
+    "name": "blog._index",
+    "src": "app/routes/blog._index.tsx?__remix-build-client-route",
+    "isEntry": true,
+    "imports": [
+      "_index-CFzYG15F.js",
+      "_components-DMBqBoRK.js"
+    ]
+  },
+  "app/routes/contact.tsx?__remix-build-client-route": {
+    "file": "assets/contact-DF_1Ymml.js",
+    "name": "contact",
+    "src": "app/routes/contact.tsx?__remix-build-client-route",
+    "isEntry": true,
+    "imports": [
+      "_index-CFzYG15F.js",
+      "_components-DMBqBoRK.js"
+    ]
+  },
+  "app/routes/services.business-citations.tsx?__remix-build-client-route": {
+    "file": "assets/services.business-citations-Ceq1hUjd.js",
+    "name": "services.business-citations",
+    "src": "app/routes/services.business-citations.tsx?__remix-build-client-route",
+    "isEntry": true,
+    "imports": [
+      "_index-CFzYG15F.js",
+      "_FAQSection-DixTOksr.js",
+      "_proxy-CeJI3rgl.js",
+      "_components-DMBqBoRK.js",
+      "_use-constant-DZc81Vim.js"
+    ]
+  },
+  "app/routes/services.digital-services.tsx?__remix-build-client-route": {
+    "file": "assets/services.digital-services-ChQ3kdKx.js",
+    "name": "services.digital-services",
+    "src": "app/routes/services.digital-services.tsx?__remix-build-client-route",
+    "isEntry": true,
+    "imports": [
+      "_index-CFzYG15F.js",
+      "_FAQSection-DixTOksr.js",
+      "_proxy-CeJI3rgl.js",
+      "_components-DMBqBoRK.js",
+      "_use-constant-DZc81Vim.js"
+    ]
+  },
+  "app/routes/services.facebook-ads.tsx?__remix-build-client-route": {
+    "file": "assets/services.facebook-ads-C1SzL98H.js",
+    "name": "services.facebook-ads",
+    "src": "app/routes/services.facebook-ads.tsx?__remix-build-client-route",
+    "isEntry": true,
+    "imports": [
+      "_index-CFzYG15F.js",
+      "_FAQSection-DixTOksr.js",
+      "_proxy-CeJI3rgl.js",
+      "_components-DMBqBoRK.js",
+      "_use-constant-DZc81Vim.js"
+    ]
+  },
+  "app/routes/services.gbp-ranking.tsx?__remix-build-client-route": {
+    "file": "assets/services.gbp-ranking-CJWhunrJ.js",
+    "name": "services.gbp-ranking",
+    "src": "app/routes/services.gbp-ranking.tsx?__remix-build-client-route",
+    "isEntry": true,
+    "imports": [
+      "_index-CFzYG15F.js",
+      "_FAQSection-DixTOksr.js",
+      "_proxy-CeJI3rgl.js",
+      "_components-DMBqBoRK.js",
+      "_use-constant-DZc81Vim.js"
+    ]
+  },
+  "app/routes/services.google-ads.tsx?__remix-build-client-route": {
+    "file": "assets/services.google-ads-3TUOV3rk.js",
+    "name": "services.google-ads",
+    "src": "app/routes/services.google-ads.tsx?__remix-build-client-route",
+    "isEntry": true,
+    "imports": [
+      "_index-CFzYG15F.js",
+      "_FAQSection-DixTOksr.js",
+      "_proxy-CeJI3rgl.js",
+      "_components-DMBqBoRK.js",
+      "_use-constant-DZc81Vim.js"
+    ]
+  },
+  "app/routes/services.social-media-management.tsx?__remix-build-client-route": {
+    "file": "assets/services.social-media-management-BUY8laVK.js",
+    "name": "services.social-media-management",
+    "src": "app/routes/services.social-media-management.tsx?__remix-build-client-route",
+    "isEntry": true,
+    "imports": [
+      "_index-CFzYG15F.js",
+      "_FAQSection-DixTOksr.js",
+      "_proxy-CeJI3rgl.js",
+      "_components-DMBqBoRK.js",
+      "_use-constant-DZc81Vim.js"
+    ]
+  },
+  "app/routes/services.website-creation.tsx?__remix-build-client-route": {
+    "file": "assets/services.website-creation-p9Z2zxsV.js",
+    "name": "services.website-creation",
+    "src": "app/routes/services.website-creation.tsx?__remix-build-client-route",
+    "isEntry": true,
+    "imports": [
+      "_index-CFzYG15F.js",
+      "_FAQSection-DixTOksr.js",
+      "_proxy-CeJI3rgl.js",
+      "_components-DMBqBoRK.js",
+      "_use-constant-DZc81Vim.js"
+    ]
+  },
+  "app/routes/services.website-ranking.tsx?__remix-build-client-route": {
+    "file": "assets/services.website-ranking-BQfwso2h.js",
+    "name": "services.website-ranking",
+    "src": "app/routes/services.website-ranking.tsx?__remix-build-client-route",
+    "isEntry": true,
+    "imports": [
+      "_index-CFzYG15F.js",
+      "_FAQSection-DixTOksr.js",
+      "_proxy-CeJI3rgl.js",
+      "_components-DMBqBoRK.js",
+      "_use-constant-DZc81Vim.js"
+    ]
+  },
+  "app/routes/services.website-renting.tsx?__remix-build-client-route": {
+    "file": "assets/services.website-renting-gwfHd4nj.js",
+    "name": "services.website-renting",
+    "src": "app/routes/services.website-renting.tsx?__remix-build-client-route",
+    "isEntry": true,
+    "imports": [
+      "_index-CFzYG15F.js",
+      "_FAQSection-DixTOksr.js",
+      "_proxy-CeJI3rgl.js",
+      "_components-DMBqBoRK.js",
+      "_use-constant-DZc81Vim.js"
+    ]
+  }
+}

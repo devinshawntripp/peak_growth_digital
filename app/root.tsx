@@ -11,24 +11,21 @@ import {
   isRouteErrorResponse
 } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
-import styles from "./styles/tailwind.css";
 import Navbar from "~/components/Navbar";
 import Footer from "~/components/Footer";
-
-export const meta: MetaFunction = () => [
-  { charset: "utf-8" },
-  { title: "Peak Growth Digital" },
-  { name: "viewport", content: "width=device-width,initial-scale=1" },
-];
+import { useTheme } from '~/hooks/useTheme';
 
 export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: styles },
+  { rel: "stylesheet", href: "/app/styles/tailwind.css" },
   { rel: "icon", href: "/favicon.ico" },
 ];
 
 export default function App() {
+  const { theme } = useTheme();
+
+
   return (
-    <html lang="en" data-theme="dim">
+    <html lang="en" data-theme={theme}>
       <head>
         <Meta />
         <Links />
