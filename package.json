@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "remix vite:build",
-    "dev": "remix vite:dev",
+    "dev": "npx prisma generate && remix vite:dev",
     "start": "remix-serve ./build/server/index.js -p ${PORT:-3002}",
     "typecheck": "tsc"
   },
@@ -14,7 +14,6 @@
     "@remix-run/node": "^2.12.1",
     "@remix-run/react": "^2.12.1",
     "@remix-run/serve": "^2.12.1",
-    "dotenv": "^16.4.5",
     "framer-motion": "^11.5.5",
     "isbot": "^3.6.8",
     "nodemailer": "^6.9.15",
@@ -23,13 +22,11 @@
   },
   "devDependencies": {
     "@remix-run/dev": "^2.12.1",
-    "@remix-run/eslint-config": "^2.12.1",
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.15",
     "daisyui": "^4.0.0",
-    "eslint": "^8.0.0",
     "postcss": "^8.4.28",
     "tailwindcss": "^3.3.3",
     "typescript": "^5.1.6",
