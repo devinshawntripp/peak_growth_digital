@@ -5,7 +5,7 @@ import { RemixServer, Link, Meta, Links, Outlet, ScrollRestoration, Scripts, Liv
 import * as isbotModule from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PrismaClient } from "@prisma/client";
 const ABORT_DELAY = 5e3;
 function handleRequest(request, responseStatusCode, responseHeaders, remixContext, loadContext) {
@@ -118,9 +118,25 @@ const entryServer = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineP
   __proto__: null,
   default: handleRequest
 }, Symbol.toStringTag, { value: "Module" }));
+function useTheme() {
+  const [theme, setTheme] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("theme") || "light";
+    }
+    return "light";
+  });
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+  return { theme, setTheme };
+}
 function Navbar() {
+  var _a;
+  const { theme, setTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [isServicesOpen, setIsServicesOpen] = useState(false);
+  const [isThemeDropdownOpen, setIsThemeDropdownOpen] = useState(false);
   const services2 = [
     { name: "Website Ranking", path: "/services/website-ranking" },
     { name: "Website Renting", path: "/services/website-renting" },
@@ -131,6 +147,40 @@ function Navbar() {
     { name: "Google Ads", path: "/services/google-ads" },
     { name: "Social Media Management", path: "/services/social-media-management" },
     { name: "Business Citations", path: "/services/business-citations" }
+  ];
+  const themes = [
+    { name: "light", icon: "☀️" },
+    { name: "dark", icon: "🌙" },
+    { name: "cupcake", icon: "🧁" },
+    { name: "bumblebee", icon: "🐝" },
+    { name: "emerald", icon: "💎" },
+    { name: "corporate", icon: "🏢" },
+    { name: "synthwave", icon: "🌆" },
+    { name: "retro", icon: "🕹️" },
+    { name: "cyberpunk", icon: "🤖" },
+    { name: "valentine", icon: "💖" },
+    { name: "halloween", icon: "🎃" },
+    { name: "garden", icon: "🌻" },
+    { name: "forest", icon: "🌳" },
+    { name: "aqua", icon: "💧" },
+    { name: "lofi", icon: "🎵" },
+    { name: "pastel", icon: "🎨" },
+    { name: "fantasy", icon: "🧙" },
+    { name: "wireframe", icon: "📐" },
+    { name: "black", icon: "⚫" },
+    { name: "luxury", icon: "💎" },
+    { name: "dracula", icon: "🧛" },
+    { name: "cmyk", icon: "🖨️" },
+    { name: "autumn", icon: "🍂" },
+    { name: "business", icon: "💼" },
+    { name: "acid", icon: "🧪" },
+    { name: "lemonade", icon: "🍋" },
+    { name: "night", icon: "🌃" },
+    { name: "coffee", icon: "☕" },
+    { name: "winter", icon: "❄️" },
+    { name: "dim", icon: "🔅" },
+    { name: "nord", icon: "🧊" },
+    { name: "sunset", icon: "🌅" }
   ];
   return /* @__PURE__ */ jsxs("div", { className: "navbar bg-base-100", children: [
     /* @__PURE__ */ jsxs("div", { className: "navbar-start", children: [
@@ -181,6 +231,29 @@ function Navbar() {
       /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx(Link, { to: "/blog", children: "Blog" }) }),
       /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx(Link, { to: "/contact", children: "Contact" }) })
     ] }) }),
+    /* @__PURE__ */ jsxs("div", { className: "flex-none relative", children: [
+      /* @__PURE__ */ jsx(
+        "button",
+        {
+          className: "btn btn-ghost btn-circle",
+          onClick: () => setIsThemeDropdownOpen(!isThemeDropdownOpen),
+          children: ((_a = themes.find((t) => t.name === theme)) == null ? void 0 : _a.icon) || "🎨"
+        }
+      ),
+      isThemeDropdownOpen && /* @__PURE__ */ jsx("div", { className: "absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-base-100 ring-1 ring-black ring-opacity-5 focus:outline-none z-50", children: /* @__PURE__ */ jsx("div", { className: "py-1 grid grid-cols-4 gap-1 p-2", role: "menu", "aria-orientation": "vertical", "aria-labelledby": "options-menu", children: themes.map((t) => /* @__PURE__ */ jsx(
+        "button",
+        {
+          onClick: () => {
+            setTheme(t.name);
+            setIsThemeDropdownOpen(false);
+          },
+          className: `flex items-center justify-center p-2 rounded-md hover:bg-base-200 ${theme === t.name ? "bg-primary text-primary-content" : ""}`,
+          role: "menuitem",
+          children: /* @__PURE__ */ jsx("span", { className: "text-2xl", title: t.name, children: t.icon })
+        },
+        t.name
+      )) }) })
+    ] }),
     /* @__PURE__ */ jsx("div", { className: "navbar-end", children: /* @__PURE__ */ jsx(Link, { to: "/contact", className: "btn btn-primary", children: "Get Started" }) })
   ] });
 }
@@ -205,11 +278,12 @@ function Footer() {
   ] });
 }
 const links = () => [
-  { rel: "stylesheet", href: "app/styles/tailwind.css" },
-  { rel: "icon", href: "/favicon.ico" }
+  { rel: "stylesheet", href: "/styles/tailwind.css" }
+  // { rel: "icon", href: "/favicon.ico" },
 ];
 function App() {
-  return /* @__PURE__ */ jsxs("html", { lang: "en", "data-theme": "dim", children: [
+  const { theme } = useTheme();
+  return /* @__PURE__ */ jsxs("html", { lang: "en", "data-theme": theme, children: [
     /* @__PURE__ */ jsxs("head", { children: [
       /* @__PURE__ */ jsx(Meta, {}),
       /* @__PURE__ */ jsx(Links, {})
@@ -1555,11 +1629,11 @@ const action = async ({ request }) => {
 };
 const containerVariants$1 = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+  visible: { opacity: 1, transition: { staggerChildren: 0.2 } }
 };
 const itemVariants$1 = {
   hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 }
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
 };
 function Index() {
   const actionData = useActionData();
@@ -1570,15 +1644,15 @@ function Index() {
     url: "https://peakgrowthdigital.com"
   };
   const services2 = [
-    { name: "Website Ranking", path: "/services/website-ranking" },
-    { name: "Website Renting", path: "/services/website-renting" },
-    { name: "Website Creation", path: "/services/website-creation" },
-    { name: "GBP Ranking", path: "/services/gbp-ranking" },
-    { name: "Digital Services", path: "/services/digital-services" },
-    { name: "Facebook Ads", path: "/services/facebook-ads" },
-    { name: "Google Ads", path: "/services/google-ads" },
-    { name: "Social Media Management", path: "/services/social-media-management" },
-    { name: "Business Citations", path: "/services/business-citations" }
+    { name: "Website Ranking", path: "/services/website-ranking", icon: "🏆" },
+    { name: "Website Renting", path: "/services/website-renting", icon: "🏠" },
+    { name: "Website Creation", path: "/services/website-creation", icon: "🎨" },
+    { name: "GBP Ranking", path: "/services/gbp-ranking", icon: "📍" },
+    { name: "Digital Services", path: "/services/digital-services", icon: "💻" },
+    { name: "Facebook Ads", path: "/services/facebook-ads", icon: "👍" },
+    { name: "Google Ads", path: "/services/google-ads", icon: "🔍" },
+    { name: "Social Media Management", path: "/services/social-media-management", icon: "📱" },
+    { name: "Business Citations", path: "/services/business-citations", icon: "📊" }
   ];
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsx(JsonLd, { data: jsonLdData }),
@@ -1590,73 +1664,89 @@ function Index() {
         animate: "visible",
         variants: containerVariants$1,
         children: [
-          /* @__PURE__ */ jsx(motion.section, { className: "hero min-h-screen bg-base-200", variants: itemVariants$1, children: /* @__PURE__ */ jsx("div", { className: "hero-content text-center", children: /* @__PURE__ */ jsxs("div", { className: "max-w-md", children: [
+          /* @__PURE__ */ jsx(motion.section, { className: "hero min-h-screen bg-gradient-to-br from-primary to-secondary text-primary-content", variants: itemVariants$1, children: /* @__PURE__ */ jsx("div", { className: "hero-content text-center", children: /* @__PURE__ */ jsxs("div", { className: "max-w-md", children: [
             /* @__PURE__ */ jsx(
               motion.h1,
               {
-                className: "text-5xl font-bold",
-                initial: { opacity: 0, y: -20 },
+                className: "text-5xl font-bold mb-8",
+                initial: { opacity: 0, y: -50 },
                 animate: { opacity: 1, y: 0 },
-                transition: { delay: 0.2 },
+                transition: { duration: 0.8, delay: 0.2 },
                 children: "Welcome to Peak Growth Digital"
               }
             ),
             /* @__PURE__ */ jsx(
               motion.p,
               {
-                className: "py-6",
+                className: "py-6 text-lg",
                 initial: { opacity: 0 },
                 animate: { opacity: 1 },
-                transition: { delay: 0.4 },
+                transition: { duration: 0.8, delay: 0.4 },
                 children: "Your partner in navigating the digital landscape. We offer a suite of services designed to enhance your online presence and meet your specific needs."
               }
             ),
             /* @__PURE__ */ jsx(
               motion.div,
               {
-                initial: { opacity: 0, y: 20 },
+                initial: { opacity: 0, y: 50 },
                 animate: { opacity: 1, y: 0 },
-                transition: { delay: 0.6 },
-                children: /* @__PURE__ */ jsx(Link, { to: "/contact", className: "btn btn-primary", children: "Get Started" })
+                transition: { duration: 0.8, delay: 0.6 },
+                children: /* @__PURE__ */ jsx(Link, { to: "/contact", className: "btn btn-secondary btn-lg", children: "Get Started" })
               }
             )
           ] }) }) }),
-          /* @__PURE__ */ jsxs(motion.section, { className: "py-12", variants: itemVariants$1, children: [
-            /* @__PURE__ */ jsx("h2", { className: "text-3xl font-bold text-center mb-8", children: "Our Services" }),
-            /* @__PURE__ */ jsx("div", { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6", children: services2.map((service) => /* @__PURE__ */ jsx(motion.div, { className: "card bg-base-100 shadow-xl", variants: itemVariants$1, children: /* @__PURE__ */ jsxs("div", { className: "card-body", children: [
-              /* @__PURE__ */ jsx("h3", { className: "card-title", children: service.name }),
-              /* @__PURE__ */ jsxs("p", { children: [
-                "We offer top-notch ",
-                service.name.toLowerCase(),
-                " services to boost your online presence and drive growth."
-              ] }),
-              /* @__PURE__ */ jsx("div", { className: "card-actions justify-end", children: /* @__PURE__ */ jsx(Link, { to: service.path, className: "btn btn-primary btn-sm", children: "Learn More" }) })
-            ] }) }, service.name)) })
+          /* @__PURE__ */ jsxs(motion.section, { className: "py-20 bg-base-200", variants: itemVariants$1, children: [
+            /* @__PURE__ */ jsx("h2", { className: "text-4xl font-bold text-center mb-12", children: "Our Services" }),
+            /* @__PURE__ */ jsx("div", { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8", children: services2.map((service, index) => /* @__PURE__ */ jsx(
+              motion.div,
+              {
+                className: "card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300",
+                variants: itemVariants$1,
+                initial: "hidden",
+                animate: "visible",
+                transition: { delay: index * 0.1 },
+                children: /* @__PURE__ */ jsxs("div", { className: "card-body", children: [
+                  /* @__PURE__ */ jsxs("h3", { className: "card-title text-2xl flex items-center", children: [
+                    /* @__PURE__ */ jsx("span", { className: "text-3xl mr-2", children: service.icon }),
+                    service.name
+                  ] }),
+                  /* @__PURE__ */ jsxs("p", { className: "text-base-content/80", children: [
+                    "We offer top-notch ",
+                    service.name.toLowerCase(),
+                    " services to boost your online presence and drive growth."
+                  ] }),
+                  /* @__PURE__ */ jsx("div", { className: "card-actions justify-end mt-4", children: /* @__PURE__ */ jsx(Link, { to: service.path, className: "btn btn-primary", children: "Learn More" }) })
+                ] })
+              },
+              service.name
+            )) })
           ] }),
-          /* @__PURE__ */ jsxs(motion.section, { className: "py-12 bg-base-200", variants: itemVariants$1, children: [
-            /* @__PURE__ */ jsx("h2", { className: "text-3xl font-bold text-center mb-8", children: "What Our Clients Say" }),
+          /* @__PURE__ */ jsxs(motion.section, { className: "py-20 bg-gradient-to-br from-accent to-accent-focus text-accent-content", variants: itemVariants$1, children: [
+            /* @__PURE__ */ jsx("h2", { className: "text-4xl font-bold text-center mb-12", children: "What Our Clients Say" }),
             /* @__PURE__ */ jsx(Testimonials, {})
           ] }),
-          /* @__PURE__ */ jsxs(motion.section, { className: "py-12", variants: itemVariants$1, children: [
-            /* @__PURE__ */ jsx("h2", { className: "text-3xl font-bold text-center mb-8", children: "Pricing Calculator" }),
+          /* @__PURE__ */ jsxs(motion.section, { className: "py-20", variants: itemVariants$1, children: [
+            /* @__PURE__ */ jsx("h2", { className: "text-4xl font-bold text-center mb-12", children: "Pricing Calculator" }),
             /* @__PURE__ */ jsx(PricingCalculator, {})
           ] }),
-          /* @__PURE__ */ jsxs(motion.section, { className: "py-12 bg-base-200", variants: itemVariants$1, children: [
-            /* @__PURE__ */ jsx("h2", { className: "text-3xl font-bold text-center mb-8", children: "Stay Updated" }),
-            /* @__PURE__ */ jsx(NewsletterSignup, {}),
-            (actionData == null ? void 0 : actionData.success) && /* @__PURE__ */ jsx(
-              motion.p,
-              {
-                className: "text-success text-center mt-4",
-                initial: { opacity: 0, y: 20 },
-                animate: { opacity: 1, y: 0 },
-                children: "Thank you for subscribing to our newsletter!"
-              }
-            )
+          /* @__PURE__ */ jsxs(motion.section, { className: "py-20 bg-base-200", variants: itemVariants$1, children: [
+            /* @__PURE__ */ jsx("h2", { className: "text-4xl font-bold text-center mb-12", children: "Stay Updated" }),
+            /* @__PURE__ */ jsxs("div", { className: "max-w-md mx-auto", children: [
+              /* @__PURE__ */ jsx(NewsletterSignup, {}),
+              (actionData == null ? void 0 : actionData.success) && /* @__PURE__ */ jsx(
+                motion.p,
+                {
+                  className: "text-success text-center mt-4",
+                  initial: { opacity: 0, y: 20 },
+                  animate: { opacity: 1, y: 0 },
+                  children: "Thank you for subscribing to our newsletter!"
+                }
+              )
+            ] })
           ] }),
-          /* @__PURE__ */ jsxs(motion.section, { className: "py-12", variants: itemVariants$1, children: [
-            /* @__PURE__ */ jsx("h2", { className: "text-3xl font-bold text-center mb-8", children: "Ready to Grow Your Online Presence?" }),
-            /* @__PURE__ */ jsx("div", { className: "text-center", children: /* @__PURE__ */ jsx(Link, { to: "/contact", className: "btn btn-primary btn-lg", children: "Contact Us Today" }) })
+          /* @__PURE__ */ jsxs(motion.section, { className: "py-20 bg-gradient-to-br from-secondary to-primary text-primary-content", variants: itemVariants$1, children: [
+            /* @__PURE__ */ jsx("h2", { className: "text-4xl font-bold text-center mb-8", children: "Ready to Grow Your Online Presence?" }),
+            /* @__PURE__ */ jsx("div", { className: "text-center", children: /* @__PURE__ */ jsx(Link, { to: "/contact", className: "btn btn-secondary btn-lg", children: "Contact Us Today" }) })
           ] })
         ]
       }
@@ -1735,7 +1825,7 @@ const route14 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePrope
   default: About,
   meta
 }, Symbol.toStringTag, { value: "Module" }));
-const serverManifest = { "entry": { "module": "/assets/entry.client-DTIDw1NP.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/components-DMBqBoRK.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": true, "module": "/assets/root-Dz971uLq.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/components-DMBqBoRK.js", "/assets/index-aWJx3OZ6.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/services.social-media-management": { "id": "routes/services.social-media-management", "parentId": "root", "path": "services/social-media-management", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.social-media-management-BUY8laVK.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/FAQSection-DixTOksr.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/services.business-citations": { "id": "routes/services.business-citations", "parentId": "root", "path": "services/business-citations", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.business-citations-Ceq1hUjd.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/FAQSection-DixTOksr.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/services.digital-services": { "id": "routes/services.digital-services", "parentId": "root", "path": "services/digital-services", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.digital-services-ChQ3kdKx.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/FAQSection-DixTOksr.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/services.website-creation": { "id": "routes/services.website-creation", "parentId": "root", "path": "services/website-creation", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.website-creation-p9Z2zxsV.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/FAQSection-DixTOksr.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/services.website-ranking": { "id": "routes/services.website-ranking", "parentId": "root", "path": "services/website-ranking", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.website-ranking-BQfwso2h.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/FAQSection-DixTOksr.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/services.website-renting": { "id": "routes/services.website-renting", "parentId": "root", "path": "services/website-renting", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.website-renting-gwfHd4nj.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/FAQSection-DixTOksr.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/services.facebook-ads": { "id": "routes/services.facebook-ads", "parentId": "root", "path": "services/facebook-ads", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.facebook-ads-C1SzL98H.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/FAQSection-DixTOksr.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/services.gbp-ranking": { "id": "routes/services.gbp-ranking", "parentId": "root", "path": "services/gbp-ranking", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.gbp-ranking-CJWhunrJ.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/FAQSection-DixTOksr.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/services.google-ads": { "id": "routes/services.google-ads", "parentId": "root", "path": "services/google-ads", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.google-ads-3TUOV3rk.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/FAQSection-DixTOksr.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/blog.$postId": { "id": "routes/blog.$postId", "parentId": "root", "path": "blog/:postId", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/blog._postId-C_LtPl3q.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/components-DMBqBoRK.js"], "css": [] }, "routes/blog._index": { "id": "routes/blog._index", "parentId": "root", "path": "blog", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/blog._index-I8RjDVEI.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/components-DMBqBoRK.js"], "css": [] }, "routes/contact": { "id": "routes/contact", "parentId": "root", "path": "contact", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/contact-DF_1Ymml.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/components-DMBqBoRK.js"], "css": [] }, "routes/_index": { "id": "routes/_index", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_index-CFNMVZ2m.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/JsonLd-DPEObuuU.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/index-aWJx3OZ6.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/about": { "id": "routes/about", "parentId": "root", "path": "about", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/about-DG1f08By.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/JsonLd-DPEObuuU.js", "/assets/proxy-CeJI3rgl.js", "/assets/use-constant-DZc81Vim.js"], "css": [] } }, "url": "/assets/manifest-b51dce8e.js", "version": "b51dce8e" };
+const serverManifest = { "entry": { "module": "/assets/entry.client-DTIDw1NP.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/components-DMBqBoRK.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": true, "module": "/assets/root-CkEzgPG7.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/components-DMBqBoRK.js", "/assets/index-aWJx3OZ6.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/services.social-media-management": { "id": "routes/services.social-media-management", "parentId": "root", "path": "services/social-media-management", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.social-media-management-BUY8laVK.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/FAQSection-DixTOksr.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/services.business-citations": { "id": "routes/services.business-citations", "parentId": "root", "path": "services/business-citations", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.business-citations-Ceq1hUjd.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/FAQSection-DixTOksr.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/services.digital-services": { "id": "routes/services.digital-services", "parentId": "root", "path": "services/digital-services", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.digital-services-ChQ3kdKx.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/FAQSection-DixTOksr.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/services.website-creation": { "id": "routes/services.website-creation", "parentId": "root", "path": "services/website-creation", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.website-creation-p9Z2zxsV.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/FAQSection-DixTOksr.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/services.website-ranking": { "id": "routes/services.website-ranking", "parentId": "root", "path": "services/website-ranking", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.website-ranking-BQfwso2h.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/FAQSection-DixTOksr.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/services.website-renting": { "id": "routes/services.website-renting", "parentId": "root", "path": "services/website-renting", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.website-renting-gwfHd4nj.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/FAQSection-DixTOksr.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/services.facebook-ads": { "id": "routes/services.facebook-ads", "parentId": "root", "path": "services/facebook-ads", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.facebook-ads-C1SzL98H.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/FAQSection-DixTOksr.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/services.gbp-ranking": { "id": "routes/services.gbp-ranking", "parentId": "root", "path": "services/gbp-ranking", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.gbp-ranking-CJWhunrJ.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/FAQSection-DixTOksr.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/services.google-ads": { "id": "routes/services.google-ads", "parentId": "root", "path": "services/google-ads", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.google-ads-3TUOV3rk.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/FAQSection-DixTOksr.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/blog.$postId": { "id": "routes/blog.$postId", "parentId": "root", "path": "blog/:postId", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/blog._postId-C_LtPl3q.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/components-DMBqBoRK.js"], "css": [] }, "routes/blog._index": { "id": "routes/blog._index", "parentId": "root", "path": "blog", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/blog._index-I8RjDVEI.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/components-DMBqBoRK.js"], "css": [] }, "routes/contact": { "id": "routes/contact", "parentId": "root", "path": "contact", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/contact-DF_1Ymml.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/components-DMBqBoRK.js"], "css": [] }, "routes/_index": { "id": "routes/_index", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_index-P7vJGxyu.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/JsonLd-DPEObuuU.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/index-aWJx3OZ6.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/about": { "id": "routes/about", "parentId": "root", "path": "about", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/about-DG1f08By.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/JsonLd-DPEObuuU.js", "/assets/proxy-CeJI3rgl.js", "/assets/use-constant-DZc81Vim.js"], "css": [] } }, "url": "/assets/manifest-7afae83b.js", "version": "7afae83b" };
 const mode = "production";
 const assetsBuildDirectory = "build/client";
 const basename = "/";

@@ -15,9 +15,10 @@ import Navbar from "~/components/Navbar";
 import Footer from "~/components/Footer";
 import { useTheme } from '~/hooks/useTheme';
 
+
 export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: "/app/styles/tailwind.css" },
-  { rel: "icon", href: "/favicon.ico" },
+  { rel: "stylesheet", href: "/styles/tailwind.css" },
+  // { rel: "icon", href: "/favicon.ico" },
 ];
 
 export default function App() {

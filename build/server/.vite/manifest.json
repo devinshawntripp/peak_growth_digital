@@ -1,8 +1,0 @@
-{
-  "virtual:remix/server-build": {
-    "file": "index.js",
-    "name": "server-build",
-    "src": "virtual:remix/server-build",
-    "isEntry": true
-  }
-}
