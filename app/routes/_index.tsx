@@ -59,7 +59,7 @@ export default function Index() {
       <JsonLd data={jsonLdData} />
       <AnimatePresence>
         <motion.div
-          className="container mx-auto px-4"
+          className="w-full overflow-hidden"
           initial="hidden"
           animate="visible"
           variants={containerVariants}
@@ -68,7 +68,7 @@ export default function Index() {
             <div className="hero-content text-center">
               <div className="max-w-md">
                 <motion.h1 
-                  className="text-5xl font-bold mb-8"
+                  className="text-5xl font-bold mb-6"
                   initial={{ opacity: 0, y: -50 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.2 }}
@@ -76,7 +76,7 @@ export default function Index() {
                   Welcome to Peak Growth Digital
                 </motion.h1>
                 <motion.p 
-                  className="py-6 text-lg"
+                  className="py-6"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.8, delay: 0.4 }}
@@ -96,18 +96,18 @@ export default function Index() {
 
           <motion.section className="py-20 bg-base-200" variants={itemVariants}>
             <h2 className="text-4xl font-bold text-center mb-12">Our Services</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 ">
               {services.map((service, index) => (
                 <motion.div 
                   key={service.name} 
-                  className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300"
+                  className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 w-full"
                   variants={itemVariants}
                   initial="hidden"
                   animate="visible"
                   transition={{ delay: index * 0.1 }}
                 >
                   <div className="card-body">
-                    <h3 className="card-title text-2xl flex items-center">
+                    <h3 className="card-title text-2xl">
                       <span className="text-3xl mr-2">{service.icon}</span>
                       {service.name}
                     </h3>
@@ -123,21 +123,25 @@ export default function Index() {
 
           <motion.section className="py-20 bg-gradient-to-br from-accent to-accent-focus text-accent-content" variants={itemVariants}>
             <h2 className="text-4xl font-bold text-center mb-12">What Our Clients Say</h2>
-            <Testimonials />
+            <div className="container mx-auto px-4">
+              <Testimonials />
+            </div>
           </motion.section>
 
           <motion.section className="py-20" variants={itemVariants}>
             <h2 className="text-4xl font-bold text-center mb-12">Pricing Calculator</h2>
-            <PricingCalculator />
+            <div className="container mx-auto max-w-2xl">
+              <PricingCalculator />
+            </div>
           </motion.section>
 
           <motion.section className="py-20 bg-base-200" variants={itemVariants}>
             <h2 className="text-4xl font-bold text-center mb-12">Stay Updated</h2>
-            <div className="max-w-md mx-auto">
+            <div className="container mx-auto max-w-md">
               <NewsletterSignup />
               {actionData?.success && (
                 <motion.p 
-                  className="text-success text-center mt-4"
+                  className="text-success text-center mt-6"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                 >

@@ -37,7 +37,45 @@ export const action: ActionFunction = async ({ request }) => {
 
   try {
     // Save to database and send email (unchanged)
-    // ...
+    const contact = await prisma.contact.create({
+      data: {
+        name,
+        email,
+        message,
+      },
+    });
+
+    // Send email
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+      tls: {
+        rejectUnauthorized: false // Accept self-signed certificates
+      }
+    });
+
+    
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM,
+      to: process.env.SMTP_TO,
+      subject: 'New Contact Form Submission',
+      text: `
+        Name: ${name}
+        Email: ${email}
+        Message: ${message}
+      `,
+      html: `
+        <h2>New Contact Form Submission</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Message:</strong> ${message}</p>
+      `,
+    });
 
     return json({ success: true });
   } catch (error) {

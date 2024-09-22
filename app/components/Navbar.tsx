@@ -1,12 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from '@remix-run/react';
 import { useTheme } from '~/hooks/useTheme';
 
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
-  const [isOpen, setIsOpen] = useState(false);
-  const [isServicesOpen, setIsServicesOpen] = useState(false);
-  const [isThemeDropdownOpen, setIsThemeDropdownOpen] = useState(false);
 
   const services = [
     { name: "Website Ranking", path: "/services/website-ranking" },
@@ -56,100 +53,87 @@ export default function Navbar() {
   ];
 
   return (
-    <div className="navbar bg-base-100">
-      <div className="navbar-start">
-        <div className="dropdown">
-          <label tabIndex={0} className="btn btn-ghost lg:hidden" onClick={() => setIsOpen(!isOpen)}>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h8m-8 6h16" /></svg>
-          </label>
-          {isOpen && (
-            <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[100] p-2 shadow bg-base-100 rounded-box w-52">
-              <li><Link to="/" onClick={() => setIsOpen(false)}>Home</Link></li>
+    <div className="drawer">
+      <input id="my-drawer-3" type="checkbox" className="drawer-toggle" /> 
+      <div className="drawer-content flex flex-col">
+        {/* Navbar */}
+        <div className="w-full navbar bg-base-300 h-40"> {/* Doubled height */}
+          <div className="flex-none lg:hidden">
+            <label htmlFor="my-drawer-3" className="btn btn-square btn-ghost">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-10 h-10 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </label>
+          </div> 
+          <div className="flex-1 px-2 mx-2">
+            <Link to="/" className="btn btn-ghost normal-case text-3xl">Peak Growth Digital</Link> {/* Increased text size */}
+          </div>
+          <div className="flex-none hidden lg:block">
+            <ul className="menu menu-horizontal px-1 text-2xl"> {/* Increased text size */}
+              <li><Link to="/">Home</Link></li>
               <li>
-                <a onClick={() => setIsServicesOpen(!isServicesOpen)}>Services</a>
-                {isServicesOpen && (
-                  <ul className="p-2 bg-base-100 rounded-box">
+                <details>
+                  <summary>Services</summary>
+                  <ul className="p-2 bg-base-100 rounded-t-none">
                     {services.map((service) => (
-                      <li key={service.path}>
-                        <Link 
-                          to={service.path} 
-                          onClick={() => {
-                            setIsOpen(false);
-                            setIsServicesOpen(false);
-                          }} 
-                          className="whitespace-nowrap"
-                        >
-                          {service.name}
-                        </Link>
-                      </li>
+                      <li key={service.path}><Link to={service.path}>{service.name}</Link></li>
                     ))}
                   </ul>
-                )}
+                </details>
               </li>
-              <li><Link to="/about" onClick={() => setIsOpen(false)}>About</Link></li>
-              <li><Link to="/blog" onClick={() => setIsOpen(false)}>Blog</Link></li>
-              <li><Link to="/contact" onClick={() => setIsOpen(false)}>Contact</Link></li>
+              <li><Link to="/about">About</Link></li>
+              <li><Link to="/blog">Blog</Link></li>
+              <li><Link to="/contact">Contact</Link></li>
             </ul>
-          )}
-        </div>
-        <Link to="/" className="btn btn-ghost normal-case text-xl">Peak Growth Digital</Link>
-      </div>
-      <div className="navbar-center hidden lg:flex">
-        <ul className="menu menu-horizontal px-1">
-          <li><Link to="/">Home</Link></li>
-          <li className="dropdown dropdown-hover">
-            <label tabIndex={0} className="btn btn-ghost">Services</label>
-            <ul tabIndex={0} className="dropdown-content z-[100] menu p-2 shadow bg-base-100 rounded-box w-52">
-              {services.map((service) => (
-                <li key={service.path}>
-                  <Link 
-                    to={service.path} 
-                    className="whitespace-nowrap"
-                    onClick={() => {
-                      const dropdown = document.activeElement as HTMLElement;
-                      dropdown.blur();
-                    }}
-                  >
-                    {service.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </li>
-          <li><Link to="/about">About</Link></li>
-          <li><Link to="/blog">Blog</Link></li>
-          <li><Link to="/contact">Contact</Link></li>
-        </ul>
-      </div>
-      <div className="flex-none relative">
-        <button
-          className="btn btn-ghost btn-circle"
-          onClick={() => setIsThemeDropdownOpen(!isThemeDropdownOpen)}
-        >
-          {themes.find(t => t.name === theme)?.icon || '🎨'}
-        </button>
-        {isThemeDropdownOpen && (
-          <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-base-100 ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
-            <div className="py-1 grid grid-cols-4 gap-1 p-2" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-              {themes.map((t) => (
-                <button
-                  key={t.name}
-                  onClick={() => {
-                    setTheme(t.name);
-                    setIsThemeDropdownOpen(false);
-                  }}
-                  className={`flex items-center justify-center p-2 rounded-md hover:bg-base-200 ${theme === t.name ? 'bg-primary text-primary-content' : ''}`}
-                  role="menuitem"
-                >
-                  <span className="text-2xl" title={t.name}>{t.icon}</span>
-                </button>
-              ))}
-            </div>
           </div>
-        )}
-      </div>
-      <div className="navbar-end">
-        <Link to="/contact" className="btn btn-primary">Get Started</Link>
+          <div className="flex-none">
+            <div className="dropdown dropdown-end">
+              <label tabIndex={0} className="btn btn-ghost btn-circle btn-lg">
+                <div className="indicator text-3xl">
+                  {themes.find(t => t.name === theme)?.icon || '🎨'}
+                </div>
+              </label>
+              <div tabIndex={0} className="mt-3 z-[1] card card-compact dropdown-content w-64 bg-base-100 shadow">
+                <div className="card-body">
+                  <div className="grid grid-cols-4 gap-2">
+                    {themes.map((t) => (
+                      <button
+                        key={t.name}
+                        onClick={() => setTheme(t.name)}
+                        className={`btn btn-ghost ${theme === t.name ? 'btn-active' : ''} text-2xl`}
+                        title={t.name}
+                      >
+                        {t.icon}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <Link to="/contact" className="btn btn-primary btn-lg ml-2 text-xl">Get Started</Link> {/* Increased button and text size */}
+          </div>
+        </div>
+      </div> 
+      <div className="drawer-side">
+        <label htmlFor="my-drawer-3" className="drawer-overlay"></label> 
+        <ul className="menu p-4 w-4/5 h-full bg-base-200 text-base-content">
+          <li><Link to="/" className="text-4xl py-8">Home</Link></li> {/* Increased text size and padding */}
+          <li>
+            <details>
+              <summary className="text-4xl py-8">Services</summary> {/* Increased text size and padding */}
+              <ul className="pl-4">
+                {services.map((service) => (
+                  <li key={service.path}>
+                    <Link to={service.path} className="text-3xl py-6"> {/* Increased text size and padding */}
+                      {service.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          </li>
+          <li><Link to="/about" className="text-4xl py-8">About</Link></li> {/* Increased text size and padding */}
+          <li><Link to="/blog" className="text-4xl py-8">Blog</Link></li> {/* Increased text size and padding */}
+          <li><Link to="/contact" className="text-4xl py-8">Contact</Link></li> {/* Increased text size and padding */}
+        </ul>
       </div>
     </div>
   );

@@ -6,23 +6,27 @@ import FAQSection from '~/components/FAQSection';
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "General Digital Services - Peak Growth Digital" },
-    { name: "description", content: "Comprehensive digital marketing services to grow your online presence. Learn about our strategies for SEO, content marketing, social media, and more." },
+    { title: "Digital Services - Peak Growth Digital" },
+    { name: "description", content: "Comprehensive digital services to boost your online presence. From SEO to social media management, we've got you covered." },
   ];
 };
 
 const faqs = [
   {
-    question: "How do I know which digital services are right for my business?",
-    answer: "We start by understanding your business goals and target audience. From there, we recommend a combination of services that will help you achieve those goals. Whether you need more traffic, better conversion rates, or increased brand awareness, we tailor our approach to meet your specific needs."
+    question: "What digital services do you offer?",
+    answer: "We offer a wide range of digital services including SEO, content marketing, social media management, email marketing, PPC advertising, web design and development, and more."
   },
   {
-    question: "How long does it take to see results from digital marketing?",
-    answer: "Results vary depending on the service. PPC can deliver immediate traffic, while SEO and content marketing typically take a few months to show significant results. We continuously monitor and adjust our strategies to ensure you see measurable progress."
+    question: "How long does it take to see results from digital marketing efforts?",
+    answer: "The timeline for results can vary depending on the specific service and your current digital presence. Some efforts, like PPC, can show immediate results, while others like SEO may take 3-6 months to show significant improvements."
   },
   {
-    question: "How do you measure success?",
-    answer: "Success is measured through key performance indicators (KPIs) that align with your business objectives. For example, for SEO, it might be higher search rankings and increased organic traffic; for social media, it could be engagement rates and follower growth. We provide detailed reports to keep you informed of progress."
+    question: "Do you offer customized digital marketing strategies?",
+    answer: "Yes, we create tailored digital marketing strategies based on your business goals, target audience, and industry. We believe in a personalized approach for maximum effectiveness."
+  },
+  {
+    question: "How do you measure the success of your digital services?",
+    answer: "We use various metrics depending on the service, including website traffic, conversion rates, engagement rates, search engine rankings, and ROI. We provide regular reports to keep you informed of progress."
   }
 ];
 
@@ -39,66 +43,76 @@ const itemVariants = {
 export default function DigitalServices() {
   return (
     <motion.div 
-      className="container mx-auto px-4 py-8"
+      className="container mx-auto px-4 py-8 sm:py-12"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
     >
-      <motion.h1 className="text-5xl font-bold mb-6 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent" variants={itemVariants}>
-        General Digital Services
+      <motion.h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 sm:mb-8 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent" variants={itemVariants}>
+        Digital Services
       </motion.h1>
-      <motion.p className="mb-6 text-xl text-center max-w-3xl mx-auto" variants={itemVariants}>
-        In the modern business landscape, having a strong digital presence is essential, but it goes beyond just having a website. At Peak Growth Digital, we offer a wide range of general digital services designed to enhance your brand's online visibility, increase traffic, and ultimately drive conversions.
+      <motion.p className="mb-8 text-xl sm:text-3xl text-center max-w-3xl mx-auto" variants={itemVariants}>
+        Elevate your online presence with our comprehensive digital services. We offer tailored solutions to help your business thrive in the digital landscape.
       </motion.p>
 
-      <motion.div className="grid grid-cols-1 md:grid-cols-2 gap-8 my-12" variants={itemVariants}>
-        <div className="bg-base-200 p-6 rounded-lg shadow-lg">
-          <h2 className="text-2xl font-semibold mb-4">What Are General Digital Services?</h2>
-          <p>
-            General digital services encompass a broad spectrum of online marketing techniques and strategies aimed at improving your brand's digital footprint. Our offerings are designed to help businesses grow by leveraging the power of the internet to attract and engage customers.
+      <motion.div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-8 my-12" variants={itemVariants}>
+        <div className="bg-base-200 p-6 sm:p-8 rounded-lg shadow-lg">
+          <h2 className="text-2xl sm:text-5xl font-semibold mb-4 sm:mb-6">Our Expertise</h2>
+          <p className="text-lg sm:text-3xl">
+            From search engine optimization to social media management, we offer a full suite of digital services designed to boost your online visibility, engage your audience, and drive conversions.
           </p>
         </div>
-        <div className="bg-base-200 p-6 rounded-lg shadow-lg">
-          <h2 className="text-2xl font-semibold mb-4">Why Choose Our Services?</h2>
-          <ul className="list-disc list-inside">
-            <li><strong>Comprehensive Digital Growth:</strong> Cover all aspects of online marketing</li>
-            <li><strong>Customized Strategies:</strong> Tailored to your business needs and goals</li>
-            <li><strong>Ongoing Support:</strong> Continuous optimization for best results</li>
-            <li><strong>Measurable Results:</strong> Detailed reporting on key performance indicators</li>
+        <div className="bg-base-200 p-6 sm:p-8 rounded-lg shadow-lg">
+          <h2 className="text-2xl sm:text-3xl font-semibold mb-4 sm:mb-6">Why Choose Our Digital Services?</h2>
+          <ul className="list-disc list-inside text-lg sm:text-3xl space-y-2">
+            <li>Tailored strategies for your unique business needs</li>
+            <li>Comprehensive approach covering all aspects of digital marketing</li>
+            <li>Data-driven decision making and continuous optimization</li>
+            <li>Transparent reporting and communication</li>
           </ul>
         </div>
       </motion.div>
 
-      <motion.h2 className="text-3xl font-semibold mt-12 mb-6 text-center" variants={itemVariants}>Our Core Digital Services</motion.h2>
-      <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12" variants={itemVariants}>
+      <motion.h2 className="text-3xl sm:text-4xl font-semibold mt-12 sm:mt-16 mb-8 sm:mb-10 text-center" variants={itemVariants}>Our Digital Services</motion.h2>
+      <motion.div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mb-12 sm:mb-16" variants={itemVariants}>
         {[
           { title: "Search Engine Optimization (SEO)", icon: "🔍", description: "Improve your website's visibility in search results" },
           { title: "Content Marketing", icon: "📝", description: "Create and distribute valuable, relevant content" },
-          { title: "Social Media Management", icon: "📱", description: "Engage with your audience across social platforms" },
-          { title: "Pay-Per-Click (PPC) Advertising", icon: "💰", description: "Drive immediate traffic through targeted ads" },
-          { title: "Email Marketing", icon: "📧", description: "Nurture leads and build customer relationships" },
-          { title: "Online Reputation Management", icon: "⭐", description: "Monitor and improve your online reputation" },
+          { title: "Social Media Management", icon: "📱", description: "Engage your audience across social platforms" },
+          { title: "Email Marketing", icon: "📧", description: "Build relationships and drive conversions" },
+          { title: "PPC Advertising", icon: "💰", description: "Targeted ads for immediate visibility and traffic" },
+          { title: "Web Design & Development", icon: "🖥️", description: "Create stunning, functional websites" },
         ].map((service, index) => (
-          <div key={index} className="bg-base-200 p-6 rounded-lg shadow-lg">
-            <div className="text-4xl mb-4">{service.icon}</div>
-            <h3 className="text-xl font-semibold mb-2">{service.title}</h3>
-            <p>{service.description}</p>
+          <div key={index} className="bg-base-200 p-6 sm:p-8 rounded-lg shadow-lg text-center">
+            <div className="text-4xl sm:text-5xl mb-4">{service.icon}</div>
+            <h3 className="text-xl sm:text-4xl font-semibold mb-3 sm:mb-4">{service.title}</h3>
+            <p className="text-base sm:text-4xl">{service.description}</p>
           </div>
         ))}
       </motion.div>
 
-      <motion.h2 className="text-3xl font-semibold mt-12 mb-6 text-center" variants={itemVariants}>How Our Services Work Together</motion.h2>
-      <motion.p className="mb-6 text-center" variants={itemVariants}>
-        Each digital service complements the others, creating a comprehensive digital marketing strategy. When used together, these services create a holistic approach to growing your online presence and driving business success.
-      </motion.p>
+      <motion.h2 className="text-3xl sm:text-4xl font-semibold mt-12 sm:mt-16 mb-8 sm:mb-10 text-center" variants={itemVariants}>Our Process</motion.h2>
+      <motion.div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-12 sm:mb-16" variants={itemVariants}>
+        {[
+          { title: "1. Analysis", description: "We start by thoroughly analyzing your current digital presence and identifying opportunities for improvement." },
+          { title: "2. Strategy Development", description: "Based on our analysis, we create a customized digital strategy tailored to your business goals." },
+          { title: "3. Implementation", description: "We put our plan into action, implementing various digital marketing tactics across chosen channels." },
+          { title: "4. Monitoring & Optimization", description: "We continuously monitor performance and make data-driven adjustments to optimize results." },
+        ].map((step, index) => (
+          <div key={index} className="bg-base-200 p-6 sm:p-8 rounded-lg shadow-lg">
+            <h3 className="text-xl sm:text-4xl font-semibold mb-2 sm:mb-4">{step.title}</h3>
+            <p className="text-base sm:text-4xl">{step.description}</p>
+          </div>
+        ))}
+      </motion.div>
 
-      <motion.h2 className="text-3xl font-semibold mt-12 mb-6 text-center" variants={itemVariants}>Common Questions</motion.h2>
+      <motion.h2 className="text-3xl sm:text-4xl font-semibold mt-12 sm:mt-16 mb-8 sm:mb-10 text-center" variants={itemVariants}>Frequently Asked Questions</motion.h2>
       <motion.div variants={itemVariants}>
         <FAQSection faqs={faqs} />
       </motion.div>
       
-      <motion.div className="mt-12 text-center" variants={itemVariants}>
-        <Link to="/contact" className="btn btn-primary btn-lg">Start Your Digital Growth Journey</Link>
+      <motion.div className="mt-12 sm:mt-16 text-center" variants={itemVariants}>
+        <Link to="/contact" className="btn btn-primary btn-lg text-lg sm:text-xl px-6 sm:px-8 py-3 sm:py-4">Get Started with Digital Services</Link>
       </motion.div>
     </motion.div>
   );

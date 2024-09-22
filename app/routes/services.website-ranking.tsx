@@ -43,28 +43,28 @@ const itemVariants = {
 export default function WebsiteRanking() {
   return (
     <motion.div 
-      className="container mx-auto px-4 py-8"
+      className="container mx-auto px-4 py-8 sm:py-12"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
     >
-      <motion.h1 className="text-5xl font-bold mb-6 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent" variants={itemVariants}>
+      <motion.h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 sm:mb-8 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent" variants={itemVariants}>
         Website Ranking
       </motion.h1>
-      <motion.p className="mb-6 text-xl text-center max-w-3xl mx-auto" variants={itemVariants}>
+      <motion.p className="mb-8 text-xl sm:text-3xl text-center max-w-3xl mx-auto" variants={itemVariants}>
         In today's competitive digital world, securing top spots on search engines like Google is vital. Website ranking isn't just about being found; it's about being chosen.
       </motion.p>
 
-      <motion.div className="grid grid-cols-1 md:grid-cols-2 gap-8 my-12" variants={itemVariants}>
-        <div className="bg-base-200 p-6 rounded-lg shadow-lg">
-          <h2 className="text-2xl font-semibold mb-4">What is Website Ranking?</h2>
-          <p>
+      <motion.div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-8 my-12" variants={itemVariants}>
+        <div className="bg-base-200 p-6 sm:p-8 rounded-lg shadow-lg">
+          <h2 className="text-2xl sm:text-5xl font-semibold mb-4 sm:mb-6">What is Website Ranking?</h2>
+          <p className="text-lg sm:text-3xl">
             Website ranking refers to the position your website holds on search engine result pages (SERPs) when someone searches for a specific keyword or phrase. Search engines rank websites based on hundreds of factors, including relevance, website quality, and user experience.
           </p>
         </div>
-        <div className="bg-base-200 p-6 rounded-lg shadow-lg">
-          <h2 className="text-2xl font-semibold mb-4">Why Does Website Ranking Matter?</h2>
-          <ul className="list-disc list-inside">
+        <div className="bg-base-200 p-6 sm:p-8 rounded-lg shadow-lg">
+          <h2 className="text-2xl sm:text-3xl font-semibold mb-4 sm:mb-6">Why Does Website Ranking Matter?</h2>
+          <ul className="list-disc list-inside text-lg sm:text-3xl space-y-2">
             <li><strong>Increased Visibility:</strong> Higher ranking means more visibility</li>
             <li><strong>Builds Trust:</strong> Top-ranked sites are often perceived as more trustworthy</li>
             <li><strong>Boosts Traffic:</strong> Better rankings lead to more website visitors</li>
@@ -73,8 +73,8 @@ export default function WebsiteRanking() {
         </div>
       </motion.div>
 
-      <motion.h2 className="text-3xl font-semibold mt-12 mb-6 text-center" variants={itemVariants}>Our Website Ranking Process</motion.h2>
-      <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12" variants={itemVariants}>
+      <motion.h2 className="text-3xl sm:text-4xl font-semibold mt-12 sm:mt-16 mb-8 sm:mb-10 text-center" variants={itemVariants}>Our Website Ranking Process</motion.h2>
+      <motion.div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mb-12 sm:mb-16" variants={itemVariants}>
         {[
           { title: "Website Audit", icon: "🔍", description: "Analyze your current website and its performance" },
           { title: "Keyword Research", icon: "🔑", description: "Identify valuable keywords for your business" },
@@ -83,21 +83,21 @@ export default function WebsiteRanking() {
           { title: "Link Building", icon: "🔗", description: "Implement ethical link building strategies" },
           { title: "Monitoring", icon: "📊", description: "Continuously monitor rankings and provide reports" },
         ].map((step, index) => (
-          <div key={index} className="bg-base-200 p-6 rounded-lg shadow-lg text-center">
-            <div className="text-4xl mb-4">{step.icon}</div>
-            <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
-            <p>{step.description}</p>
+          <div key={index} className="bg-base-200 p-6 sm:p-8 rounded-lg shadow-lg text-center">
+            <div className="text-4xl sm:text-5xl mb-4">{step.icon}</div>
+            <h3 className="text-xl sm:text-4xl font-semibold mb-3 sm:mb-4">{step.title}</h3>
+            <p className="text-base sm:text-4xl">{step.description}</p>
           </div>
         ))}
       </motion.div>
 
-      <motion.h2 className="text-3xl font-semibold mt-12 mb-6 text-center" variants={itemVariants}>Common Questions</motion.h2>
+      <motion.h2 className="text-3xl sm:text-4xl font-semibold mt-12 sm:mt-16 mb-8 sm:mb-10 text-center" variants={itemVariants}>Common Questions</motion.h2>
       <motion.div variants={itemVariants}>
         <FAQSection faqs={faqs} />
       </motion.div>
       
-      <motion.div className="mt-12 text-center" variants={itemVariants}>
-        <Link to="/contact" className="btn btn-primary btn-lg">Boost Your Website Ranking</Link>
+      <motion.div className="mt-12 sm:mt-16 text-center" variants={itemVariants}>
+        <Link to="/contact" className="btn btn-primary btn-lg text-lg sm:text-xl px-6 sm:px-8 py-3 sm:py-4">Boost Your Website Ranking</Link>
       </motion.div>
     </motion.div>
   );

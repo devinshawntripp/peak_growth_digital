@@ -14,10 +14,10 @@ import { AnimatePresence } from "framer-motion";
 import Navbar from "~/components/Navbar";
 import Footer from "~/components/Footer";
 import { useTheme } from '~/hooks/useTheme';
-
+import styles from "./styles/tailwind.css?url";
 
 export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: "/styles/tailwind.css" },
+  { rel: "stylesheet", href: styles },
   // { rel: "icon", href: "/favicon.ico" },
 ];
 
