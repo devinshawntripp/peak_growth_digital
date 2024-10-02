@@ -96,7 +96,7 @@ export default function Index() {
 
           <motion.section className="py-20 bg-base-200" variants={itemVariants}>
             <h2 className="text-4xl font-bold text-center mb-12">Our Services</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 ">
+            <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-6 sm:text-3xl">
               {services.map((service, index) => (
                 <motion.div 
                   key={service.name} 
@@ -107,7 +107,7 @@ export default function Index() {
                   transition={{ delay: index * 0.1 }}
                 >
                   <div className="card-body">
-                    <h3 className="card-title text-2xl">
+                    <h3 className="card-title text-2xl sm:text-4xl">
                       <span className="text-3xl mr-2">{service.icon}</span>
                       {service.name}
                     </h3>
@@ -128,7 +128,7 @@ export default function Index() {
             </div>
           </motion.section>
 
-          <motion.section className="py-20" variants={itemVariants}>
+          <motion.section className="py-20 sm:text:3xl" variants={itemVariants}>
             <h2 className="text-4xl font-bold text-center mb-12">Pricing Calculator</h2>
             <div className="container mx-auto max-w-2xl">
               <PricingCalculator />

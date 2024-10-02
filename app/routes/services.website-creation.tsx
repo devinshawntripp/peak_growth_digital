@@ -55,7 +55,7 @@ export default function WebsiteCreation() {
         Your website is the digital storefront of your business—it's often the first impression potential customers have of you. At Peak Growth Digital, we craft custom websites that not only look stunning but are also built to perform.
       </motion.p>
 
-      <motion.div className="grid grid-cols-1 md:grid-cols-2 gap-8 my-12" variants={itemVariants}>
+      <motion.div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-8 my-12" variants={itemVariants}>
         <div className="bg-base-200 p-6 rounded-lg shadow-lg">
           <h2 className="text-2xl font-semibold mb-4">What is Website Creation?</h2>
           <p>
@@ -72,8 +72,8 @@ export default function WebsiteCreation() {
         </div>
       </motion.div>
 
-      <motion.h2 className="text-3xl font-semibold mt-12 mb-6 text-center" variants={itemVariants}>Our Website Creation Process</motion.h2>
-      <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12" variants={itemVariants}>
+      <motion.h2 className="md:text-3xl sm:text-6xl font-semibold mt-12 mb-6 text-center" variants={itemVariants}>Our Website Creation Process</motion.h2>
+      <motion.div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-6 mb-12 sm:text-5xl" variants={itemVariants}>
         {[
           { title: "Discovery", icon: "🔍", description: "We learn about your business, goals, and target audience" },
           { title: "Design", icon: "🎨", description: "Our team creates a custom mockup reflecting your brand identity" },
