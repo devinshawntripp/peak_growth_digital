@@ -70,14 +70,18 @@ export default function Navbar() {
       <input id="my-drawer-3" type="checkbox" className="drawer-toggle" ref={drawerRef} />
       <div className="drawer-content flex flex-col">
         {/* Navbar */}
-        <div className="w-full navbar bg-base-300 z-40"> {/* Doubled height */}
+        <div className="w-full navbar bg-base-300 z-40">
           <div className="flex-none lg:hidden" onMouseDown={() => setIsServicesOpen(!isServicesOpen)}>
             <label htmlFor="my-drawer-3" className="btn btn-square btn-ghost">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-10 h-10 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </label>
           </div>
           <div className="flex-1 lg:px-2 lg:mx-2 sm:px-1 sm:mx-1">
-            <Link to="/" className="btn btn-ghost normal-case lg:text-3xl sm:text-1xl md:text-2xl">Peak Growth Digital</Link> {/* Increased text size */}
+            <Link to="/" className="btn btn-ghost normal-case lg:text-3xl sm:text-1xl md:text-2xl">
+              <img src="/logo-transparent-png.png" alt="PGD Logo" className="h-8 w-auto mr-2" /> {/* Add this line */}
+              <span className="lg:inline hidden">Peak Growth Digital</span>
+              <span className="lg:hidden inline">PGD</span>
+            </Link>
           </div>
           <div className="flex-none hidden lg:block">
             <ul className="menu menu-horizontal px-1 text-2xl">
@@ -161,7 +165,7 @@ export default function Navbar() {
                 <ul className="pl-4">
                   {services.map((service) => (
                     <li key={service.path}>
-                      <a onClick={() => handleNavClick(service.path)} className="text-3xl my-1"> {/* Increased text size and padding */}
+                      <a onClick={() => handleNavClick(service.path)} className="text-2xl"> {/* Increased text size and padding */}
                         {service.name}
                       </a>
                     </li>
