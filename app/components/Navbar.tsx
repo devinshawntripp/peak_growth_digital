@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Link, useNavigate } from '@remix-run/react';
 import { useTheme } from '~/hooks/useTheme';
 
@@ -6,7 +6,9 @@ export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const drawerRef = useRef<HTMLInputElement>(null);
   const servicesDetailsRef = useRef<HTMLDetailsElement>(null);
+  const dropdownRef = useRef<HTMLUListElement>(null);
   const navigate = useNavigate();
+  const [isServicesOpen, setIsServicesOpen] = useState(false);
 
   const services = [
     { name: "Website Ranking", path: "/services/website-ranking" },
@@ -59,9 +61,7 @@ export default function Navbar() {
     if (drawerRef.current) {
       drawerRef.current.checked = false;
     }
-    if (servicesDetailsRef.current) {
-      servicesDetailsRef.current.open = false;
-    }
+    setIsServicesOpen(false);
     navigate(path);
   };
 
@@ -71,7 +71,7 @@ export default function Navbar() {
       <div className="drawer-content flex flex-col">
         {/* Navbar */}
         <div className="w-full navbar bg-base-300 z-40"> {/* Doubled height */}
-          <div className="flex-none lg:hidden">
+          <div className="flex-none lg:hidden" onMouseDown={() => setIsServicesOpen(!isServicesOpen)}>
             <label htmlFor="my-drawer-3" className="btn btn-square btn-ghost">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-10 h-10 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </label>
@@ -80,17 +80,41 @@ export default function Navbar() {
             <Link to="/" className="btn btn-ghost normal-case lg:text-3xl sm:text-1xl md:text-2xl">Peak Growth Digital</Link> {/* Increased text size */}
           </div>
           <div className="flex-none hidden lg:block">
-            <ul className="menu menu-horizontal px-1 text-2xl"> {/* Increased text size */}
+            <ul className="menu menu-horizontal px-1 text-2xl">
               <li><Link to="/">Home</Link></li>
               <li>
-                <details ref={servicesDetailsRef}>
-                  <summary>Services</summary>
-                  <ul className="p-2 bg-base-100 rounded-t-none">
-                    {services.map((service) => (
-                      <li key={service.path}><Link to={service.path}>{service.name}</Link></li>
-                    ))}
-                  </ul>
-                </details>
+                <div className="dropdown dropdown-hover dropdown-bottom">
+                  <label
+                    tabIndex={0}
+                    className="text-2xl flex items-center"
+                    onMouseEnter={() => setIsServicesOpen(true)}
+                  >
+                    Services
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </label>
+                  {isServicesOpen && (
+                    <ul
+                      tabIndex={0}
+                      className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-70 mt-1"
+                      onMouseEnter={() => setIsServicesOpen(true)}
+                      onMouseLeave={() => setIsServicesOpen(false)}
+                    >
+                      {services.map((service) => (
+                        <li key={service.path}>
+                          <Link
+                            to={service.path}
+                            onClick={() => handleNavClick(service.path)}
+                            className="text-xl whitespace-nowrap"
+                          >
+                            {service.name}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </li>
               <li><Link to="/about">About</Link></li>
               <li><Link to="/blog">Blog</Link></li>
@@ -125,29 +149,32 @@ export default function Navbar() {
           </div>
         </div>
       </div>
-      <div className="drawer-side z-30">
-        <label htmlFor="my-drawer-3" className="drawer-overlay"></label>
-        <ul className="menu p-4 w-4/5 h-full bg-base-300 text-base-content mt-12">
-          <li><a onClick={() => handleNavClick("/")} className="text-4xl py-8">Home</a></li> {/* Increased text size and padding */}
-          <li>
-            <details ref={servicesDetailsRef}>
-              <summary className="text-4xl py-8">Services</summary> {/* Increased text size and padding */}
-              <ul className="pl-4">
-                {services.map((service) => (
-                  <li key={service.path}>
-                    <a onClick={() => handleNavClick(service.path)} className="text-3xl py-6"> {/* Increased text size and padding */}
-                      {service.name}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </details>
-          </li>
-          <li><a onClick={() => handleNavClick("/about")} className="text-4xl py-8">About</a></li> {/* Increased text size and padding */}
-          <li><a onClick={() => handleNavClick("/blog")} className="text-4xl py-8">Blog</a></li> {/* Increased text size and padding */}
-          <li><a onClick={() => handleNavClick("/contact")} className="text-4xl py-8">Contact</a></li> {/* Increased text size and padding */}
-        </ul>
-      </div>
+      {/* Drawer */}
+      {isServicesOpen && (
+        <div className="drawer-side z-30">
+          <label htmlFor="my-drawer-3" className="drawer-overlay"></label>
+          <ul className="menu p-4 w-4/5 h-full bg-base-300 text-base-content mt-12">
+            <li><a onClick={() => handleNavClick("/")} className="text-4xl py-8">Home</a></li> {/* Increased text size and padding */}
+            <li>
+              <details ref={servicesDetailsRef}>
+                <summary className="text-4xl py-8">Services</summary> {/* Increased text size and padding */}
+                <ul className="pl-4">
+                  {services.map((service) => (
+                    <li key={service.path}>
+                      <a onClick={() => handleNavClick(service.path)} className="text-3xl my-1"> {/* Increased text size and padding */}
+                        {service.name}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            </li>
+            <li><a onClick={() => handleNavClick("/about")} className="text-4xl py-8">About</a></li> {/* Increased text size and padding */}
+            <li><a onClick={() => handleNavClick("/blog")} className="text-4xl py-8">Blog</a></li> {/* Increased text size and padding */}
+            <li><a onClick={() => handleNavClick("/contact")} className="text-4xl py-8">Contact</a></li> {/* Increased text size and padding */}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
