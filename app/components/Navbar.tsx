@@ -1,9 +1,12 @@
-import React from 'react';
-import { Link } from '@remix-run/react';
+import React, { useRef } from 'react';
+import { Link, useNavigate } from '@remix-run/react';
 import { useTheme } from '~/hooks/useTheme';
 
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
+  const drawerRef = useRef<HTMLInputElement>(null);
+  const servicesDetailsRef = useRef<HTMLDetailsElement>(null);
+  const navigate = useNavigate();
 
   const services = [
     { name: "Website Ranking", path: "/services/website-ranking" },
@@ -52,9 +55,19 @@ export default function Navbar() {
     { name: "sunset", icon: "🌅" },
   ];
 
+  const handleNavClick = (path: string) => {
+    if (drawerRef.current) {
+      drawerRef.current.checked = false;
+    }
+    if (servicesDetailsRef.current) {
+      servicesDetailsRef.current.open = false;
+    }
+    navigate(path);
+  };
+
   return (
     <div className="drawer">
-      <input id="my-drawer-3" type="checkbox" className="drawer-toggle" /> 
+      <input id="my-drawer-3" type="checkbox" className="drawer-toggle" ref={drawerRef} />
       <div className="drawer-content flex flex-col">
         {/* Navbar */}
         <div className="w-full navbar bg-base-300 z-40"> {/* Doubled height */}
@@ -62,15 +75,15 @@ export default function Navbar() {
             <label htmlFor="my-drawer-3" className="btn btn-square btn-ghost">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-10 h-10 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </label>
-          </div> 
-          <div className="flex-1 px-2 mx-2">
-            <Link to="/" className="btn btn-ghost normal-case text-3xl">Peak Growth Digital</Link> {/* Increased text size */}
+          </div>
+          <div className="flex-1 lg:px-2 lg:mx-2 sm:px-1 sm:mx-1">
+            <Link to="/" className="btn btn-ghost normal-case lg:text-3xl sm:text-1xl md:text-2xl">Peak Growth Digital</Link> {/* Increased text size */}
           </div>
           <div className="flex-none hidden lg:block">
             <ul className="menu menu-horizontal px-1 text-2xl"> {/* Increased text size */}
               <li><Link to="/">Home</Link></li>
               <li>
-                <details>
+                <details ref={servicesDetailsRef}>
                   <summary>Services</summary>
                   <ul className="p-2 bg-base-100 rounded-t-none">
                     {services.map((service) => (
@@ -108,31 +121,31 @@ export default function Navbar() {
                 </div>
               </div>
             </div>
-            <Link to="/contact" className="btn btn-primary btn-lg ml-2 text-xl">Get Started</Link> {/* Increased button and text size */}
+            <Link to="/contact" className="btn btn-primary sm:btn-sm lg:btn-lg sm:btn-md ml-2 text-xl">Get Started</Link> {/* Increased button and text size */}
           </div>
         </div>
-      </div> 
+      </div>
       <div className="drawer-side z-30">
-        <label htmlFor="my-drawer-3" className="drawer-overlay"></label> 
-        <ul className="menu p-4 w-4/5 h-full bg-base-300 text-base-content">
-          <li><Link to="/" className="text-4xl py-8">Home</Link></li> {/* Increased text size and padding */}
+        <label htmlFor="my-drawer-3" className="drawer-overlay"></label>
+        <ul className="menu p-4 w-4/5 h-full bg-base-300 text-base-content mt-12">
+          <li><a onClick={() => handleNavClick("/")} className="text-4xl py-8">Home</a></li> {/* Increased text size and padding */}
           <li>
-            <details>
+            <details ref={servicesDetailsRef}>
               <summary className="text-4xl py-8">Services</summary> {/* Increased text size and padding */}
               <ul className="pl-4">
                 {services.map((service) => (
                   <li key={service.path}>
-                    <Link to={service.path} className="text-3xl py-6"> {/* Increased text size and padding */}
+                    <a onClick={() => handleNavClick(service.path)} className="text-3xl py-6"> {/* Increased text size and padding */}
                       {service.name}
-                    </Link>
+                    </a>
                   </li>
                 ))}
               </ul>
             </details>
           </li>
-          <li><Link to="/about" className="text-4xl py-8">About</Link></li> {/* Increased text size and padding */}
-          <li><Link to="/blog" className="text-4xl py-8">Blog</Link></li> {/* Increased text size and padding */}
-          <li><Link to="/contact" className="text-4xl py-8">Contact</Link></li> {/* Increased text size and padding */}
+          <li><a onClick={() => handleNavClick("/about")} className="text-4xl py-8">About</a></li> {/* Increased text size and padding */}
+          <li><a onClick={() => handleNavClick("/blog")} className="text-4xl py-8">Blog</a></li> {/* Increased text size and padding */}
+          <li><a onClick={() => handleNavClick("/contact")} className="text-4xl py-8">Contact</a></li> {/* Increased text size and padding */}
         </ul>
       </div>
     </div>
