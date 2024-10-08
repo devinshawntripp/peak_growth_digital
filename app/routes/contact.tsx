@@ -59,7 +59,7 @@ export const action: ActionFunction = async ({ request }) => {
       }
     });
 
-    
+
     await transporter.sendMail({
       from: process.env.SMTP_FROM,
       to: process.env.SMTP_TO,
@@ -92,7 +92,7 @@ export default function Contact() {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-6">Contact Us</h1>
       <p className="mb-8">Have a question or want to learn more about our services? Get in touch with us using the form below.</p>
-      
+
       {actionData?.success && (
         <div className="alert alert-success mb-4">
           Thank you for your message. We'll get back to you soon!
@@ -131,6 +131,15 @@ export default function Contact() {
           {navigation.state === "submitting" ? "Sending..." : "Send Message"}
         </button>
       </Form>
+
+
+      <div className="flex justify-center">
+        <iframe
+          src="https://schedule.devintripp.com/embed/scheduler?userId=1ae621ea-0e1c-4511-a2fc-ad73c873cb84&apiKey=e2884122e3aa4625d8ee2a31c71de4c8c3592550ef85e2a57e230202b29f320e"
+          width="100%"
+          height="600"
+        ></iframe>
+      </div>
     </div>
   );
 }
