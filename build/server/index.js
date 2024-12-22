@@ -1,12 +1,13 @@
 import { jsx, jsxs, Fragment } from "react/jsx-runtime";
 import { PassThrough } from "node:stream";
 import { createReadableStreamFromReadable, json } from "@remix-run/node";
-import { RemixServer, Link, Meta, Links, Outlet, ScrollRestoration, Scripts, LiveReload, useRouteError, isRouteErrorResponse, useLoaderData, useSubmit, Form, useSearchParams, useActionData, useNavigation, useLocation } from "@remix-run/react";
+import { RemixServer, useNavigate, Link, Meta, Links, Outlet, ScrollRestoration, Scripts, LiveReload, useRouteError, isRouteErrorResponse, useLoaderData, useSubmit, Form, useSearchParams, useActionData, useNavigation, useLocation } from "@remix-run/react";
 import * as isbotModule from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
 import { AnimatePresence, motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { PrismaClient } from "@prisma/client";
+import nodemailer from "nodemailer";
 const ABORT_DELAY = 5e3;
 function handleRequest(request, responseStatusCode, responseHeaders, remixContext, loadContext) {
   let prohibitOutOfOrderStreaming = isBotRequest(request.headers.get("user-agent")) || remixContext.isSpaMode;
@@ -121,7 +122,7 @@ const entryServer = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineP
 function useTheme() {
   const [theme, setTheme] = useState(() => {
     if (typeof window !== "undefined") {
-      return localStorage.getItem("theme") || "light";
+      return localStorage.getItem("theme") || "halloween";
     }
     return "light";
   });
@@ -134,9 +135,11 @@ function useTheme() {
 function Navbar() {
   var _a;
   const { theme, setTheme } = useTheme();
-  const [isOpen, setIsOpen] = useState(false);
+  const drawerRef = useRef(null);
+  const servicesDetailsRef = useRef(null);
+  useRef(null);
+  const navigate = useNavigate();
   const [isServicesOpen, setIsServicesOpen] = useState(false);
-  const [isThemeDropdownOpen, setIsThemeDropdownOpen] = useState(false);
   const services2 = [
     { name: "Website Ranking", path: "/services/website-ranking" },
     { name: "Website Renting", path: "/services/website-renting" },
@@ -182,79 +185,100 @@ function Navbar() {
     { name: "nord", icon: "🧊" },
     { name: "sunset", icon: "🌅" }
   ];
-  return /* @__PURE__ */ jsxs("div", { className: "navbar bg-base-100", children: [
-    /* @__PURE__ */ jsxs("div", { className: "navbar-start", children: [
-      /* @__PURE__ */ jsxs("div", { className: "dropdown", children: [
-        /* @__PURE__ */ jsx("label", { tabIndex: 0, className: "btn btn-ghost lg:hidden", onClick: () => setIsOpen(!isOpen), children: /* @__PURE__ */ jsx("svg", { xmlns: "http://www.w3.org/2000/svg", className: "h-5 w-5", fill: "none", viewBox: "0 0 24 24", stroke: "currentColor", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M4 6h16M4 12h8m-8 6h16" }) }) }),
-        isOpen && /* @__PURE__ */ jsxs("ul", { tabIndex: 0, className: "menu menu-sm dropdown-content mt-3 z-[100] p-2 shadow bg-base-100 rounded-box w-52", children: [
-          /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx(Link, { to: "/", onClick: () => setIsOpen(false), children: "Home" }) }),
-          /* @__PURE__ */ jsxs("li", { children: [
-            /* @__PURE__ */ jsx("a", { onClick: () => setIsServicesOpen(!isServicesOpen), children: "Services" }),
-            isServicesOpen && /* @__PURE__ */ jsx("ul", { className: "p-2 bg-base-100 rounded-box", children: services2.map((service) => /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx(
-              Link,
-              {
-                to: service.path,
-                onClick: () => {
-                  setIsOpen(false);
-                  setIsServicesOpen(false);
-                },
-                className: "whitespace-nowrap",
-                children: service.name
-              }
-            ) }, service.path)) })
-          ] }),
-          /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx(Link, { to: "/about", onClick: () => setIsOpen(false), children: "About" }) }),
-          /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx(Link, { to: "/blog", onClick: () => setIsOpen(false), children: "Blog" }) }),
-          /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx(Link, { to: "/contact", onClick: () => setIsOpen(false), children: "Contact" }) })
-        ] })
-      ] }),
-      /* @__PURE__ */ jsx(Link, { to: "/", className: "btn btn-ghost normal-case text-xl", children: "Peak Growth Digital" })
-    ] }),
-    /* @__PURE__ */ jsx("div", { className: "navbar-center hidden lg:flex", children: /* @__PURE__ */ jsxs("ul", { className: "menu menu-horizontal px-1", children: [
-      /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx(Link, { to: "/", children: "Home" }) }),
-      /* @__PURE__ */ jsxs("li", { className: "dropdown dropdown-hover", children: [
-        /* @__PURE__ */ jsx("label", { tabIndex: 0, className: "btn btn-ghost", children: "Services" }),
-        /* @__PURE__ */ jsx("ul", { tabIndex: 0, className: "dropdown-content z-[100] menu p-2 shadow bg-base-100 rounded-box w-52", children: services2.map((service) => /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx(
-          Link,
-          {
-            to: service.path,
-            className: "whitespace-nowrap",
-            onClick: () => {
-              const dropdown = document.activeElement;
-              dropdown.blur();
+  const handleNavClick = (path) => {
+    if (drawerRef.current) {
+      drawerRef.current.checked = false;
+    }
+    setIsServicesOpen(false);
+    navigate(path);
+  };
+  return /* @__PURE__ */ jsxs("div", { className: "drawer", children: [
+    /* @__PURE__ */ jsx("input", { id: "my-drawer-3", type: "checkbox", className: "drawer-toggle", ref: drawerRef }),
+    /* @__PURE__ */ jsx("div", { className: "drawer-content flex flex-col", children: /* @__PURE__ */ jsxs("div", { className: "w-full navbar bg-base-300 z-40", children: [
+      /* @__PURE__ */ jsx("div", { className: "flex-none lg:hidden", onMouseDown: () => setIsServicesOpen(!isServicesOpen), children: /* @__PURE__ */ jsx("label", { htmlFor: "my-drawer-3", className: "btn btn-square btn-ghost", children: /* @__PURE__ */ jsx("svg", { xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", className: "inline-block w-10 h-10 stroke-current", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M4 6h16M4 12h16M4 18h16" }) }) }) }),
+      /* @__PURE__ */ jsx("div", { className: "flex-1 lg:px-2 lg:mx-2 sm:px-1 sm:mx-1", children: /* @__PURE__ */ jsxs(Link, { to: "/", className: "btn btn-ghost normal-case lg:text-3xl sm:text-1xl md:text-2xl", children: [
+        /* @__PURE__ */ jsx("img", { src: "/logo-transparent-png.png", alt: "PGD Logo", className: "h-8 w-auto mr-2" }),
+        " ",
+        /* @__PURE__ */ jsx("span", { className: "lg:inline hidden", children: "Peak Growth Digital" }),
+        /* @__PURE__ */ jsx("span", { className: "lg:hidden inline", children: "PGD" })
+      ] }) }),
+      /* @__PURE__ */ jsx("div", { className: "flex-none hidden lg:block", children: /* @__PURE__ */ jsxs("ul", { className: "menu menu-horizontal px-1 text-2xl", children: [
+        /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx(Link, { to: "/", children: "Home" }) }),
+        /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsxs("div", { className: "dropdown dropdown-hover dropdown-bottom", children: [
+          /* @__PURE__ */ jsxs(
+            "label",
+            {
+              tabIndex: 0,
+              className: "text-2xl flex items-center",
+              onMouseEnter: () => setIsServicesOpen(true),
+              children: [
+                "Services",
+                /* @__PURE__ */ jsx("svg", { xmlns: "http://www.w3.org/2000/svg", className: "h-5 w-5 ml-1", fill: "none", viewBox: "0 0 24 24", stroke: "currentColor", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M19 9l-7 7-7-7" }) })
+              ]
+            }
+          ),
+          isServicesOpen && /* @__PURE__ */ jsx(
+            "ul",
+            {
+              tabIndex: 0,
+              className: "dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-70 mt-1",
+              onMouseEnter: () => setIsServicesOpen(true),
+              onMouseLeave: () => setIsServicesOpen(false),
+              children: services2.map((service) => /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx(
+                Link,
+                {
+                  to: service.path,
+                  onClick: () => handleNavClick(service.path),
+                  className: "text-xl whitespace-nowrap",
+                  children: service.name
+                }
+              ) }, service.path))
+            }
+          )
+        ] }) }),
+        /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx(Link, { to: "/about", children: "About" }) }),
+        /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx(Link, { to: "/blog", children: "Blog" }) }),
+        /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx(Link, { to: "/contact", children: "Contact" }) })
+      ] }) }),
+      /* @__PURE__ */ jsxs("div", { className: "flex-none", children: [
+        /* @__PURE__ */ jsxs("div", { className: "dropdown dropdown-end", children: [
+          /* @__PURE__ */ jsx("label", { tabIndex: 0, className: "btn btn-ghost btn-circle btn-lg", children: /* @__PURE__ */ jsx("div", { className: "indicator text-3xl", children: ((_a = themes.find((t) => t.name === theme)) == null ? void 0 : _a.icon) || "🎨" }) }),
+          /* @__PURE__ */ jsx("div", { tabIndex: 0, className: "mt-3 z-[1] card card-compact dropdown-content w-64 bg-base-100 shadow", children: /* @__PURE__ */ jsx("div", { className: "card-body", children: /* @__PURE__ */ jsx("div", { className: "grid grid-cols-4 gap-2", children: themes.map((t) => /* @__PURE__ */ jsx(
+            "button",
+            {
+              onClick: () => setTheme(t.name),
+              className: `btn btn-ghost ${theme === t.name ? "btn-active" : ""} text-2xl`,
+              title: t.name,
+              children: t.icon
             },
-            children: service.name
-          }
-        ) }, service.path)) })
-      ] }),
-      /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx(Link, { to: "/about", children: "About" }) }),
-      /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx(Link, { to: "/blog", children: "Blog" }) }),
-      /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx(Link, { to: "/contact", children: "Contact" }) })
+            t.name
+          )) }) }) })
+        ] }),
+        /* @__PURE__ */ jsx(Link, { to: "/contact", className: "btn btn-primary sm:btn-sm lg:btn-lg sm:btn-md ml-2 text-xl", children: "Get Started" }),
+        " "
+      ] })
     ] }) }),
-    /* @__PURE__ */ jsxs("div", { className: "flex-none relative", children: [
-      /* @__PURE__ */ jsx(
-        "button",
-        {
-          className: "btn btn-ghost btn-circle",
-          onClick: () => setIsThemeDropdownOpen(!isThemeDropdownOpen),
-          children: ((_a = themes.find((t) => t.name === theme)) == null ? void 0 : _a.icon) || "🎨"
-        }
-      ),
-      isThemeDropdownOpen && /* @__PURE__ */ jsx("div", { className: "absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-base-100 ring-1 ring-black ring-opacity-5 focus:outline-none z-50", children: /* @__PURE__ */ jsx("div", { className: "py-1 grid grid-cols-4 gap-1 p-2", role: "menu", "aria-orientation": "vertical", "aria-labelledby": "options-menu", children: themes.map((t) => /* @__PURE__ */ jsx(
-        "button",
-        {
-          onClick: () => {
-            setTheme(t.name);
-            setIsThemeDropdownOpen(false);
-          },
-          className: `flex items-center justify-center p-2 rounded-md hover:bg-base-200 ${theme === t.name ? "bg-primary text-primary-content" : ""}`,
-          role: "menuitem",
-          children: /* @__PURE__ */ jsx("span", { className: "text-2xl", title: t.name, children: t.icon })
-        },
-        t.name
-      )) }) })
-    ] }),
-    /* @__PURE__ */ jsx("div", { className: "navbar-end", children: /* @__PURE__ */ jsx(Link, { to: "/contact", className: "btn btn-primary", children: "Get Started" }) })
+    isServicesOpen && /* @__PURE__ */ jsxs("div", { className: "drawer-side z-30", children: [
+      /* @__PURE__ */ jsx("label", { htmlFor: "my-drawer-3", className: "drawer-overlay" }),
+      /* @__PURE__ */ jsxs("ul", { className: "menu p-4 w-4/5 h-full bg-base-300 text-base-content mt-12", children: [
+        /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx("a", { onClick: () => handleNavClick("/"), className: "text-4xl py-8", children: "Home" }) }),
+        " ",
+        /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsxs("details", { ref: servicesDetailsRef, children: [
+          /* @__PURE__ */ jsx("summary", { className: "text-4xl py-8", children: "Services" }),
+          " ",
+          /* @__PURE__ */ jsx("ul", { className: "pl-4", children: services2.map((service) => /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsxs("a", { onClick: () => handleNavClick(service.path), className: "text-2xl", children: [
+            " ",
+            service.name
+          ] }) }, service.path)) })
+        ] }) }),
+        /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx("a", { onClick: () => handleNavClick("/about"), className: "text-4xl py-8", children: "About" }) }),
+        " ",
+        /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx("a", { onClick: () => handleNavClick("/blog"), className: "text-4xl py-8", children: "Blog" }) }),
+        " ",
+        /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsx("a", { onClick: () => handleNavClick("/contact"), className: "text-4xl py-8", children: "Contact" }) }),
+        " "
+      ] })
+    ] })
   ] });
 }
 function Footer() {
@@ -277,14 +301,23 @@ function Footer() {
     ] }) })
   ] });
 }
+const styles = "/assets/tailwind-CDtGlm8U.css";
 const links = () => [
-  { rel: "stylesheet", href: "/styles/tailwind.css" }
-  // { rel: "icon", href: "/favicon.ico" },
+  { rel: "stylesheet", href: styles },
+  { rel: "icon", href: "/favicon/favicon.ico" }
+  // Add this line
 ];
 function App() {
   const { theme } = useTheme();
   return /* @__PURE__ */ jsxs("html", { lang: "en", "data-theme": theme, children: [
     /* @__PURE__ */ jsxs("head", { children: [
+      /* @__PURE__ */ jsx(
+        "meta",
+        {
+          name: "viewport",
+          content: "width=device-width, initial-scale=1"
+        }
+      ),
       /* @__PURE__ */ jsx(Meta, {}),
       /* @__PURE__ */ jsx(Links, {})
     ] }),
@@ -338,11 +371,11 @@ const route0 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
 }, Symbol.toStringTag, { value: "Module" }));
 function FAQSection({ faqs: faqs2 }) {
   return /* @__PURE__ */ jsxs("div", { className: "space-y-4", children: [
-    /* @__PURE__ */ jsx("h2", { className: "text-2xl font-semibold mb-4", children: "Frequently Asked Questions" }),
+    /* @__PURE__ */ jsx("h2", { className: "text-2xl sm:text-4xl font-semibold mb-4", children: "Frequently Asked Questions" }),
     faqs2.map((faq, index) => /* @__PURE__ */ jsxs("div", { className: "collapse collapse-plus bg-base-200", children: [
       /* @__PURE__ */ jsx("input", { type: "radio", name: `faq-accordion-${index}` }),
-      /* @__PURE__ */ jsx("div", { className: "collapse-title text-xl font-medium", children: faq.question }),
-      /* @__PURE__ */ jsx("div", { className: "collapse-content", children: /* @__PURE__ */ jsx("p", { children: faq.answer }) })
+      /* @__PURE__ */ jsx("div", { className: "collapse-title text-xl sm:text-4xl font-medium", children: faq.question }),
+      /* @__PURE__ */ jsx("div", { className: "collapse-content", children: /* @__PURE__ */ jsx("p", { className: "text-lg sm:text-3xl", children: faq.answer }) })
     ] }, index))
   ] });
 }
@@ -366,11 +399,11 @@ const faqs$8 = [
     answer: "Yes! Social media is a great platform for customer service. Customers often turn to social media to ask questions or voice concerns. By being responsive and addressing customer inquiries in real-time, you can provide a better customer experience and improve brand loyalty."
   }
 ];
-const containerVariants$b = {
+const containerVariants$a = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
 };
-const itemVariants$b = {
+const itemVariants$a = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 }
 };
@@ -381,11 +414,11 @@ function SocialMediaManagement() {
       className: "container mx-auto px-4 py-8",
       initial: "hidden",
       animate: "visible",
-      variants: containerVariants$b,
+      variants: containerVariants$a,
       children: [
-        /* @__PURE__ */ jsx(motion.h1, { className: "text-5xl font-bold mb-6 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent", variants: itemVariants$b, children: "Social Media Management" }),
-        /* @__PURE__ */ jsx(motion.p, { className: "mb-6 text-xl text-center max-w-3xl mx-auto", variants: itemVariants$b, children: "In today's digital world, having a strong presence on social media is essential for engaging with your audience and building your brand. At Peak Growth Digital, we provide comprehensive Social Media Management services that help you make the most of platforms like Instagram, Facebook, and Twitter." }),
-        /* @__PURE__ */ jsxs(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 gap-8 my-12", variants: itemVariants$b, children: [
+        /* @__PURE__ */ jsx(motion.h1, { className: "text-5xl font-bold mb-6 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent", variants: itemVariants$a, children: "Social Media Management" }),
+        /* @__PURE__ */ jsx(motion.p, { className: "mb-6 text-xl text-center max-w-3xl mx-auto", variants: itemVariants$a, children: "In today's digital world, having a strong presence on social media is essential for engaging with your audience and building your brand. At Peak Growth Digital, we provide comprehensive Social Media Management services that help you make the most of platforms like Instagram, Facebook, and Twitter." }),
+        /* @__PURE__ */ jsxs(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 gap-8 my-12", variants: itemVariants$a, children: [
           /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 rounded-lg shadow-lg", children: [
             /* @__PURE__ */ jsx("h2", { className: "text-2xl font-semibold mb-4", children: "What is Social Media Management?" }),
             /* @__PURE__ */ jsx("p", { children: "Social media management involves curating, scheduling, and optimizing your brand's social media content across platforms. It's not just about posting regularly—it's about creating engaging, relevant content that connects with your audience, drives traffic, and converts followers into customers." })
@@ -412,8 +445,8 @@ function SocialMediaManagement() {
             ] })
           ] })
         ] }),
-        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$b, children: "Platforms We Manage" }),
-        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-3 gap-6 mb-12", variants: itemVariants$b, children: [
+        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$a, children: "Platforms We Manage" }),
+        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-3 gap-6 mb-12", variants: itemVariants$a, children: [
           { title: "Instagram", icon: "📸", description: "Ideal for visual storytelling and building a community" },
           { title: "Facebook", icon: "👍", description: "Versatile platform suitable for any type of business" },
           { title: "Twitter", icon: "🐦", description: "Perfect for quick updates and real-time conversations" }
@@ -422,8 +455,8 @@ function SocialMediaManagement() {
           /* @__PURE__ */ jsx("h3", { className: "text-xl font-semibold mb-2", children: platform.title }),
           /* @__PURE__ */ jsx("p", { children: platform.description })
         ] }, index)) }),
-        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$b, children: "Our Social Media Management Services" }),
-        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12", variants: itemVariants$b, children: [
+        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$a, children: "Our Social Media Management Services" }),
+        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12", variants: itemVariants$a, children: [
           { title: "Content Creation", icon: "✍️", description: "Custom content that resonates with your audience" },
           { title: "Content Scheduling", icon: "🗓️", description: "Optimal timing for maximum engagement" },
           { title: "Audience Engagement", icon: "💬", description: "Active monitoring and interaction with your audience" },
@@ -434,10 +467,10 @@ function SocialMediaManagement() {
           /* @__PURE__ */ jsx("h3", { className: "text-xl font-semibold mb-2", children: service.title }),
           /* @__PURE__ */ jsx("p", { children: service.description })
         ] }, index)) }),
-        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$b, children: "Common Questions" }),
-        /* @__PURE__ */ jsx(motion.div, { variants: itemVariants$b, children: /* @__PURE__ */ jsx(FAQSection, { faqs: faqs$8 }) }),
-        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$b, children: "Benefits of Social Media Management" }),
-        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 gap-6 mb-12", variants: itemVariants$b, children: [
+        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$a, children: "Common Questions" }),
+        /* @__PURE__ */ jsx(motion.div, { variants: itemVariants$a, children: /* @__PURE__ */ jsx(FAQSection, { faqs: faqs$8 }) }),
+        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$a, children: "Benefits of Social Media Management" }),
+        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 gap-6 mb-12", variants: itemVariants$a, children: [
           { title: "Consistent Branding", description: "Ensure a consistent look, tone, and message across all platforms" },
           { title: "Increased Engagement", description: "More likes, shares, and comments on your posts" },
           { title: "Boosted Website Traffic", description: "Drive traffic from social media to your website" },
@@ -446,7 +479,7 @@ function SocialMediaManagement() {
           /* @__PURE__ */ jsx("h3", { className: "text-xl font-semibold mb-2", children: benefit.title }),
           /* @__PURE__ */ jsx("p", { children: benefit.description })
         ] }, index)) }),
-        /* @__PURE__ */ jsx(motion.div, { className: "mt-12 text-center", variants: itemVariants$b, children: /* @__PURE__ */ jsx(Link, { to: "/contact", className: "btn btn-primary btn-lg", children: "Start Your Social Media Journey" }) })
+        /* @__PURE__ */ jsx(motion.div, { className: "mt-12 text-center", variants: itemVariants$a, children: /* @__PURE__ */ jsx(Link, { to: "/contact", className: "btn btn-primary btn-lg", children: "Start Your Social Media Journey" }) })
       ]
     }
   );
@@ -480,11 +513,11 @@ const faqs$7 = [
     answer: "Citations act as verification points for search engines like Google. The more consistent and authoritative citations you have, the more likely your business will be considered trustworthy and relevant, improving your chances of ranking in local searches."
   }
 ];
-const containerVariants$a = {
+const containerVariants$9 = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
 };
-const itemVariants$a = {
+const itemVariants$9 = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 }
 };
@@ -492,21 +525,21 @@ function BusinessCitations() {
   return /* @__PURE__ */ jsxs(
     motion.div,
     {
-      className: "container mx-auto px-4 py-8",
+      className: "container mx-auto px-4 py-8 sm:py-12",
       initial: "hidden",
       animate: "visible",
-      variants: containerVariants$a,
+      variants: containerVariants$9,
       children: [
-        /* @__PURE__ */ jsx(motion.h1, { className: "text-5xl font-bold mb-6 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent", variants: itemVariants$a, children: "Citations Service" }),
-        /* @__PURE__ */ jsx(motion.p, { className: "mb-6 text-xl text-center max-w-3xl mx-auto", variants: itemVariants$a, children: "One of the key factors that help businesses rank higher in local search results is the presence of consistent and accurate citations across the web. At Peak Growth Digital, we offer a comprehensive Citations Service that helps improve your business's local search visibility, credibility, and trustworthiness." }),
-        /* @__PURE__ */ jsxs(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 gap-8 my-12", variants: itemVariants$a, children: [
-          /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 rounded-lg shadow-lg", children: [
-            /* @__PURE__ */ jsx("h2", { className: "text-2xl font-semibold mb-4", children: "What Are Citations?" }),
-            /* @__PURE__ */ jsx("p", { children: "A citation is any online mention of your business that includes your name, address, and phone number (NAP) information. Citations are found on local directories like Yelp, Yellow Pages, Google My Business, and other relevant platforms." })
+        /* @__PURE__ */ jsx(motion.h1, { className: "text-4xl sm:text-5xl md:text-6xl font-bold mb-6 sm:mb-8 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent", variants: itemVariants$9, children: "Citations Service" }),
+        /* @__PURE__ */ jsx(motion.p, { className: "mb-8 text-xl sm:text-3xl text-center max-w-3xl mx-auto", variants: itemVariants$9, children: "One of the key factors that help businesses rank higher in local search results is the presence of consistent and accurate citations across the web. At Peak Growth Digital, we offer a comprehensive Citations Service that helps improve your business's local search visibility, credibility, and trustworthiness." }),
+        /* @__PURE__ */ jsxs(motion.div, { className: "grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-8 my-12", variants: itemVariants$9, children: [
+          /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 sm:p-8 rounded-lg shadow-lg", children: [
+            /* @__PURE__ */ jsx("h2", { className: "text-2xl sm:text-5xl font-semibold mb-4 sm:mb-6", children: "What Are Citations?" }),
+            /* @__PURE__ */ jsx("p", { className: "text-lg sm:text-3xl", children: "A citation is any online mention of your business that includes your name, address, and phone number (NAP) information. Citations are found on local directories like Yelp, Yellow Pages, Google My Business, and other relevant platforms." })
           ] }),
-          /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 rounded-lg shadow-lg", children: [
-            /* @__PURE__ */ jsx("h2", { className: "text-2xl font-semibold mb-4", children: "Why Are Citations Important for Local SEO?" }),
-            /* @__PURE__ */ jsxs("ul", { className: "list-disc list-inside", children: [
+          /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 sm:p-8 rounded-lg shadow-lg", children: [
+            /* @__PURE__ */ jsx("h2", { className: "text-2xl sm:text-3xl font-semibold mb-4 sm:mb-6", children: "Why Are Citations Important for Local SEO?" }),
+            /* @__PURE__ */ jsxs("ul", { className: "list-disc list-inside text-lg sm:text-3xl space-y-2", children: [
               /* @__PURE__ */ jsxs("li", { children: [
                 /* @__PURE__ */ jsx("strong", { children: "Improves Local Search Rankings:" }),
                 " Helps verify your business's legitimacy and relevance"
@@ -522,39 +555,39 @@ function BusinessCitations() {
             ] })
           ] })
         ] }),
-        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$a, children: "Our Citations Service Packages" }),
-        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 gap-6 mb-12", variants: itemVariants$a, children: [
+        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl sm:text-4xl font-semibold mt-12 sm:mt-16 mb-8 sm:mb-10 text-center", variants: itemVariants$9, children: "Our Citations Service Packages" }),
+        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-12 sm:mb-16", variants: itemVariants$9, children: [
           { title: "120 Citations Package", price: "$299", features: ["Manual submission to 120 high-quality directories", "Detailed NAP consistency checks", "Full report of listings"] },
           { title: "300 Citations Package", price: "$449", features: ["Submission to 300 directories", "Ongoing tracking and updates", "Ideal for highly competitive markets"] }
-        ].map((package_, index) => /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 rounded-lg shadow-lg", children: [
-          /* @__PURE__ */ jsx("h3", { className: "text-2xl font-semibold mb-2", children: package_.title }),
-          /* @__PURE__ */ jsx("p", { className: "text-xl font-bold mb-4", children: package_.price }),
-          /* @__PURE__ */ jsx("ul", { className: "list-disc list-inside", children: package_.features.map((feature, fIndex) => /* @__PURE__ */ jsx("li", { children: feature }, fIndex)) })
+        ].map((package_, index) => /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 sm:p-8 rounded-lg shadow-lg", children: [
+          /* @__PURE__ */ jsx("h3", { className: "text-2xl sm:text-4xl font-semibold mb-2 sm:mb-4", children: package_.title }),
+          /* @__PURE__ */ jsx("p", { className: "text-xl sm:text-3xl font-bold mb-4 sm:mb-6", children: package_.price }),
+          /* @__PURE__ */ jsx("ul", { className: "list-disc list-inside text-lg sm:text-3xl space-y-2", children: package_.features.map((feature, fIndex) => /* @__PURE__ */ jsx("li", { children: feature }, fIndex)) })
         ] }, index)) }),
-        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$a, children: "How We Create and Optimize Citations" }),
-        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12", variants: itemVariants$a, children: [
+        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl sm:text-4xl font-semibold mt-12 sm:mt-16 mb-8 sm:mb-10 text-center", variants: itemVariants$9, children: "How We Create and Optimize Citations" }),
+        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mb-12 sm:mb-16", variants: itemVariants$9, children: [
           { title: "NAP Consistency Check", icon: "🔍", description: "Audit and ensure consistency of your business information" },
           { title: "Manual Submission", icon: "📝", description: "Manually submit to reputable directories" },
           { title: "Ongoing Monitoring", icon: "👀", description: "Regularly check and update your citations" },
           { title: "Reporting", icon: "📊", description: "Provide detailed reports of all your listings" }
-        ].map((step, index) => /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 rounded-lg shadow-lg text-center", children: [
-          /* @__PURE__ */ jsx("div", { className: "text-4xl mb-4", children: step.icon }),
-          /* @__PURE__ */ jsx("h3", { className: "text-xl font-semibold mb-2", children: step.title }),
-          /* @__PURE__ */ jsx("p", { children: step.description })
+        ].map((step, index) => /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 sm:p-8 rounded-lg shadow-lg text-center", children: [
+          /* @__PURE__ */ jsx("div", { className: "text-4xl sm:text-5xl mb-4", children: step.icon }),
+          /* @__PURE__ */ jsx("h3", { className: "text-xl sm:text-4xl font-semibold mb-3 sm:mb-4", children: step.title }),
+          /* @__PURE__ */ jsx("p", { className: "text-base sm:text-4xl", children: step.description })
         ] }, index)) }),
-        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$a, children: "Common Questions About Citations" }),
-        /* @__PURE__ */ jsx(motion.div, { variants: itemVariants$a, children: /* @__PURE__ */ jsx(FAQSection, { faqs: faqs$7 }) }),
-        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$a, children: "Benefits of Citations Service" }),
-        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 gap-6 mb-12", variants: itemVariants$a, children: [
+        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl sm:text-4xl font-semibold mt-12 sm:mt-16 mb-8 sm:mb-10 text-center", variants: itemVariants$9, children: "Common Questions About Citations" }),
+        /* @__PURE__ */ jsx(motion.div, { variants: itemVariants$9, children: /* @__PURE__ */ jsx(FAQSection, { faqs: faqs$7 }) }),
+        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl sm:text-4xl font-semibold mt-12 sm:mt-16 mb-8 sm:mb-10 text-center", variants: itemVariants$9, children: "Benefits of Citations Service" }),
+        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-12 sm:mb-16", variants: itemVariants$9, children: [
           { title: "Improved Local SEO", description: "Boost your visibility in local search results" },
           { title: "Enhanced Online Visibility", description: "Increase opportunities for potential customers to find you" },
           { title: "Increased Trust", description: "Build legitimacy and trustworthiness for your business" },
           { title: "Ongoing Support", description: "Ensure your citations remain up to date with our larger package" }
-        ].map((benefit, index) => /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 rounded-lg shadow-lg", children: [
-          /* @__PURE__ */ jsx("h3", { className: "text-xl font-semibold mb-2", children: benefit.title }),
-          /* @__PURE__ */ jsx("p", { children: benefit.description })
+        ].map((benefit, index) => /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 sm:p-8 rounded-lg shadow-lg", children: [
+          /* @__PURE__ */ jsx("h3", { className: "text-xl sm:text-4xl font-semibold mb-2 sm:mb-4", children: benefit.title }),
+          /* @__PURE__ */ jsx("p", { className: "text-base sm:text-4xl", children: benefit.description })
         ] }, index)) }),
-        /* @__PURE__ */ jsx(motion.div, { className: "mt-12 text-center", variants: itemVariants$a, children: /* @__PURE__ */ jsx(Link, { to: "/contact", className: "btn btn-primary btn-lg", children: "Get Started with Citations" }) })
+        /* @__PURE__ */ jsx(motion.div, { className: "mt-12 sm:mt-16 text-center", variants: itemVariants$9, children: /* @__PURE__ */ jsx(Link, { to: "/contact", className: "btn btn-primary btn-lg text-lg sm:text-xl px-6 sm:px-8 py-3 sm:py-4", children: "Get Started with Citations" }) })
       ]
     }
   );
@@ -566,29 +599,33 @@ const route2 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
 }, Symbol.toStringTag, { value: "Module" }));
 const meta$b = () => {
   return [
-    { title: "General Digital Services - Peak Growth Digital" },
-    { name: "description", content: "Comprehensive digital marketing services to grow your online presence. Learn about our strategies for SEO, content marketing, social media, and more." }
+    { title: "Digital Services - Peak Growth Digital" },
+    { name: "description", content: "Comprehensive digital services to boost your online presence. From SEO to social media management, we've got you covered." }
   ];
 };
 const faqs$6 = [
   {
-    question: "How do I know which digital services are right for my business?",
-    answer: "We start by understanding your business goals and target audience. From there, we recommend a combination of services that will help you achieve those goals. Whether you need more traffic, better conversion rates, or increased brand awareness, we tailor our approach to meet your specific needs."
+    question: "What digital services do you offer?",
+    answer: "We offer a wide range of digital services including SEO, content marketing, social media management, email marketing, PPC advertising, web design and development, and more."
   },
   {
-    question: "How long does it take to see results from digital marketing?",
-    answer: "Results vary depending on the service. PPC can deliver immediate traffic, while SEO and content marketing typically take a few months to show significant results. We continuously monitor and adjust our strategies to ensure you see measurable progress."
+    question: "How long does it take to see results from digital marketing efforts?",
+    answer: "The timeline for results can vary depending on the specific service and your current digital presence. Some efforts, like PPC, can show immediate results, while others like SEO may take 3-6 months to show significant improvements."
   },
   {
-    question: "How do you measure success?",
-    answer: "Success is measured through key performance indicators (KPIs) that align with your business objectives. For example, for SEO, it might be higher search rankings and increased organic traffic; for social media, it could be engagement rates and follower growth. We provide detailed reports to keep you informed of progress."
+    question: "Do you offer customized digital marketing strategies?",
+    answer: "Yes, we create tailored digital marketing strategies based on your business goals, target audience, and industry. We believe in a personalized approach for maximum effectiveness."
+  },
+  {
+    question: "How do you measure the success of your digital services?",
+    answer: "We use various metrics depending on the service, including website traffic, conversion rates, engagement rates, search engine rankings, and ROI. We provide regular reports to keep you informed of progress."
   }
 ];
-const containerVariants$9 = {
+const containerVariants$8 = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
 };
-const itemVariants$9 = {
+const itemVariants$8 = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 }
 };
@@ -596,58 +633,54 @@ function DigitalServices() {
   return /* @__PURE__ */ jsxs(
     motion.div,
     {
-      className: "container mx-auto px-4 py-8",
+      className: "container mx-auto px-4 py-8 sm:py-12",
       initial: "hidden",
       animate: "visible",
-      variants: containerVariants$9,
+      variants: containerVariants$8,
       children: [
-        /* @__PURE__ */ jsx(motion.h1, { className: "text-5xl font-bold mb-6 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent", variants: itemVariants$9, children: "General Digital Services" }),
-        /* @__PURE__ */ jsx(motion.p, { className: "mb-6 text-xl text-center max-w-3xl mx-auto", variants: itemVariants$9, children: "In the modern business landscape, having a strong digital presence is essential, but it goes beyond just having a website. At Peak Growth Digital, we offer a wide range of general digital services designed to enhance your brand's online visibility, increase traffic, and ultimately drive conversions." }),
-        /* @__PURE__ */ jsxs(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 gap-8 my-12", variants: itemVariants$9, children: [
-          /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 rounded-lg shadow-lg", children: [
-            /* @__PURE__ */ jsx("h2", { className: "text-2xl font-semibold mb-4", children: "What Are General Digital Services?" }),
-            /* @__PURE__ */ jsx("p", { children: "General digital services encompass a broad spectrum of online marketing techniques and strategies aimed at improving your brand's digital footprint. Our offerings are designed to help businesses grow by leveraging the power of the internet to attract and engage customers." })
+        /* @__PURE__ */ jsx(motion.h1, { className: "text-4xl sm:text-5xl md:text-6xl font-bold mb-6 sm:mb-8 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent", variants: itemVariants$8, children: "Digital Services" }),
+        /* @__PURE__ */ jsx(motion.p, { className: "mb-8 text-xl sm:text-3xl text-center max-w-3xl mx-auto", variants: itemVariants$8, children: "Elevate your online presence with our comprehensive digital services. We offer tailored solutions to help your business thrive in the digital landscape." }),
+        /* @__PURE__ */ jsxs(motion.div, { className: "grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-8 my-12", variants: itemVariants$8, children: [
+          /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 sm:p-8 rounded-lg shadow-lg", children: [
+            /* @__PURE__ */ jsx("h2", { className: "text-2xl sm:text-5xl font-semibold mb-4 sm:mb-6", children: "Our Expertise" }),
+            /* @__PURE__ */ jsx("p", { className: "text-lg sm:text-3xl", children: "From search engine optimization to social media management, we offer a full suite of digital services designed to boost your online visibility, engage your audience, and drive conversions." })
           ] }),
-          /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 rounded-lg shadow-lg", children: [
-            /* @__PURE__ */ jsx("h2", { className: "text-2xl font-semibold mb-4", children: "Why Choose Our Services?" }),
-            /* @__PURE__ */ jsxs("ul", { className: "list-disc list-inside", children: [
-              /* @__PURE__ */ jsxs("li", { children: [
-                /* @__PURE__ */ jsx("strong", { children: "Comprehensive Digital Growth:" }),
-                " Cover all aspects of online marketing"
-              ] }),
-              /* @__PURE__ */ jsxs("li", { children: [
-                /* @__PURE__ */ jsx("strong", { children: "Customized Strategies:" }),
-                " Tailored to your business needs and goals"
-              ] }),
-              /* @__PURE__ */ jsxs("li", { children: [
-                /* @__PURE__ */ jsx("strong", { children: "Ongoing Support:" }),
-                " Continuous optimization for best results"
-              ] }),
-              /* @__PURE__ */ jsxs("li", { children: [
-                /* @__PURE__ */ jsx("strong", { children: "Measurable Results:" }),
-                " Detailed reporting on key performance indicators"
-              ] })
+          /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 sm:p-8 rounded-lg shadow-lg", children: [
+            /* @__PURE__ */ jsx("h2", { className: "text-2xl sm:text-3xl font-semibold mb-4 sm:mb-6", children: "Why Choose Our Digital Services?" }),
+            /* @__PURE__ */ jsxs("ul", { className: "list-disc list-inside text-lg sm:text-3xl space-y-2", children: [
+              /* @__PURE__ */ jsx("li", { children: "Tailored strategies for your unique business needs" }),
+              /* @__PURE__ */ jsx("li", { children: "Comprehensive approach covering all aspects of digital marketing" }),
+              /* @__PURE__ */ jsx("li", { children: "Data-driven decision making and continuous optimization" }),
+              /* @__PURE__ */ jsx("li", { children: "Transparent reporting and communication" })
             ] })
           ] })
         ] }),
-        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$9, children: "Our Core Digital Services" }),
-        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12", variants: itemVariants$9, children: [
+        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl sm:text-4xl font-semibold mt-12 sm:mt-16 mb-8 sm:mb-10 text-center", variants: itemVariants$8, children: "Our Digital Services" }),
+        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mb-12 sm:mb-16", variants: itemVariants$8, children: [
           { title: "Search Engine Optimization (SEO)", icon: "🔍", description: "Improve your website's visibility in search results" },
           { title: "Content Marketing", icon: "📝", description: "Create and distribute valuable, relevant content" },
-          { title: "Social Media Management", icon: "📱", description: "Engage with your audience across social platforms" },
-          { title: "Pay-Per-Click (PPC) Advertising", icon: "💰", description: "Drive immediate traffic through targeted ads" },
-          { title: "Email Marketing", icon: "📧", description: "Nurture leads and build customer relationships" },
-          { title: "Online Reputation Management", icon: "⭐", description: "Monitor and improve your online reputation" }
-        ].map((service, index) => /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 rounded-lg shadow-lg", children: [
-          /* @__PURE__ */ jsx("div", { className: "text-4xl mb-4", children: service.icon }),
-          /* @__PURE__ */ jsx("h3", { className: "text-xl font-semibold mb-2", children: service.title }),
-          /* @__PURE__ */ jsx("p", { children: service.description })
+          { title: "Social Media Management", icon: "📱", description: "Engage your audience across social platforms" },
+          { title: "Email Marketing", icon: "📧", description: "Build relationships and drive conversions" },
+          { title: "PPC Advertising", icon: "💰", description: "Targeted ads for immediate visibility and traffic" },
+          { title: "Web Design & Development", icon: "🖥️", description: "Create stunning, functional websites" }
+        ].map((service, index) => /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 sm:p-8 rounded-lg shadow-lg text-center", children: [
+          /* @__PURE__ */ jsx("div", { className: "text-4xl sm:text-5xl mb-4", children: service.icon }),
+          /* @__PURE__ */ jsx("h3", { className: "text-xl sm:text-4xl font-semibold mb-3 sm:mb-4", children: service.title }),
+          /* @__PURE__ */ jsx("p", { className: "text-base sm:text-4xl", children: service.description })
         ] }, index)) }),
-        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$9, children: "How Our Services Work Together" }),
-        /* @__PURE__ */ jsx(motion.p, { className: "mb-6 text-center", variants: itemVariants$9, children: "Each digital service complements the others, creating a comprehensive digital marketing strategy. When used together, these services create a holistic approach to growing your online presence and driving business success." }),
-        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$9, children: "Common Questions" }),
-        /* @__PURE__ */ jsx(motion.div, { variants: itemVariants$9, children: /* @__PURE__ */ jsx(FAQSection, { faqs: faqs$6 }) }),
-        /* @__PURE__ */ jsx(motion.div, { className: "mt-12 text-center", variants: itemVariants$9, children: /* @__PURE__ */ jsx(Link, { to: "/contact", className: "btn btn-primary btn-lg", children: "Start Your Digital Growth Journey" }) })
+        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl sm:text-4xl font-semibold mt-12 sm:mt-16 mb-8 sm:mb-10 text-center", variants: itemVariants$8, children: "Our Process" }),
+        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-12 sm:mb-16", variants: itemVariants$8, children: [
+          { title: "1. Analysis", description: "We start by thoroughly analyzing your current digital presence and identifying opportunities for improvement." },
+          { title: "2. Strategy Development", description: "Based on our analysis, we create a customized digital strategy tailored to your business goals." },
+          { title: "3. Implementation", description: "We put our plan into action, implementing various digital marketing tactics across chosen channels." },
+          { title: "4. Monitoring & Optimization", description: "We continuously monitor performance and make data-driven adjustments to optimize results." }
+        ].map((step, index) => /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 sm:p-8 rounded-lg shadow-lg", children: [
+          /* @__PURE__ */ jsx("h3", { className: "text-xl sm:text-4xl font-semibold mb-2 sm:mb-4", children: step.title }),
+          /* @__PURE__ */ jsx("p", { className: "text-base sm:text-4xl", children: step.description })
+        ] }, index)) }),
+        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl sm:text-4xl font-semibold mt-12 sm:mt-16 mb-8 sm:mb-10 text-center", variants: itemVariants$8, children: "Frequently Asked Questions" }),
+        /* @__PURE__ */ jsx(motion.div, { variants: itemVariants$8, children: /* @__PURE__ */ jsx(FAQSection, { faqs: faqs$6 }) }),
+        /* @__PURE__ */ jsx(motion.div, { className: "mt-12 sm:mt-16 text-center", variants: itemVariants$8, children: /* @__PURE__ */ jsx(Link, { to: "/contact", className: "btn btn-primary btn-lg text-lg sm:text-xl px-6 sm:px-8 py-3 sm:py-4", children: "Get Started with Digital Services" }) })
       ]
     }
   );
@@ -681,11 +714,11 @@ const faqs$5 = [
     answer: "After your website is launched, we offer ongoing maintenance and support. This includes regular updates, security monitoring, and SEO enhancements to keep your site performing at its best."
   }
 ];
-const containerVariants$8 = {
+const containerVariants$7 = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
 };
-const itemVariants$8 = {
+const itemVariants$7 = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 }
 };
@@ -696,11 +729,11 @@ function WebsiteCreation() {
       className: "container mx-auto px-4 py-8",
       initial: "hidden",
       animate: "visible",
-      variants: containerVariants$8,
+      variants: containerVariants$7,
       children: [
-        /* @__PURE__ */ jsx(motion.h1, { className: "text-5xl font-bold mb-6 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent", variants: itemVariants$8, children: "Website Creation" }),
-        /* @__PURE__ */ jsx(motion.p, { className: "mb-6 text-xl text-center max-w-3xl mx-auto", variants: itemVariants$8, children: "Your website is the digital storefront of your business—it's often the first impression potential customers have of you. At Peak Growth Digital, we craft custom websites that not only look stunning but are also built to perform." }),
-        /* @__PURE__ */ jsxs(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 gap-8 my-12", variants: itemVariants$8, children: [
+        /* @__PURE__ */ jsx(motion.h1, { className: "text-5xl font-bold mb-6 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent", variants: itemVariants$7, children: "Website Creation" }),
+        /* @__PURE__ */ jsx(motion.p, { className: "mb-6 text-xl text-center max-w-3xl mx-auto", variants: itemVariants$7, children: "Your website is the digital storefront of your business—it's often the first impression potential customers have of you. At Peak Growth Digital, we craft custom websites that not only look stunning but are also built to perform." }),
+        /* @__PURE__ */ jsxs(motion.div, { className: "grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-8 my-12", variants: itemVariants$7, children: [
           /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 rounded-lg shadow-lg", children: [
             /* @__PURE__ */ jsx("h2", { className: "text-2xl font-semibold mb-4", children: "What is Website Creation?" }),
             /* @__PURE__ */ jsx("p", { children: "Website creation involves the design and development of a website tailored to your business's unique needs. We take care of everything from the initial concept to the final deployment, ensuring that your website is both visually appealing and functionally sound." })
@@ -723,8 +756,8 @@ function WebsiteCreation() {
             ] })
           ] })
         ] }),
-        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$8, children: "Our Website Creation Process" }),
-        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-3 gap-6 mb-12", variants: itemVariants$8, children: [
+        /* @__PURE__ */ jsx(motion.h2, { className: "md:text-3xl sm:text-6xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$7, children: "Our Website Creation Process" }),
+        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-6 mb-12 sm:text-5xl", variants: itemVariants$7, children: [
           { title: "Discovery", icon: "🔍", description: "We learn about your business, goals, and target audience" },
           { title: "Design", icon: "🎨", description: "Our team creates a custom mockup reflecting your brand identity" },
           { title: "Development", icon: "💻", description: "We bring the design to life with clean, efficient code" },
@@ -736,10 +769,10 @@ function WebsiteCreation() {
           /* @__PURE__ */ jsx("h3", { className: "text-xl font-semibold mb-2", children: step.title }),
           /* @__PURE__ */ jsx("p", { children: step.description })
         ] }, index)) }),
-        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$8, children: "Common Questions" }),
-        /* @__PURE__ */ jsx(motion.div, { variants: itemVariants$8, children: /* @__PURE__ */ jsx(FAQSection, { faqs: faqs$5 }) }),
-        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$8, children: "Benefits of Custom Website Creation" }),
-        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 gap-6 mb-12", variants: itemVariants$8, children: [
+        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$7, children: "Common Questions" }),
+        /* @__PURE__ */ jsx(motion.div, { variants: itemVariants$7, children: /* @__PURE__ */ jsx(FAQSection, { faqs: faqs$5 }) }),
+        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$7, children: "Benefits of Custom Website Creation" }),
+        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 gap-6 mb-12", variants: itemVariants$7, children: [
           { title: "Tailored to Your Needs", description: "We build sites designed to meet your specific business goals" },
           { title: "SEO-Friendly", description: "Built with search engine optimization in mind from the ground up" },
           { title: "Scalable", description: "Grow your website as your business expands" },
@@ -748,7 +781,7 @@ function WebsiteCreation() {
           /* @__PURE__ */ jsx("h3", { className: "text-xl font-semibold mb-2", children: benefit.title }),
           /* @__PURE__ */ jsx("p", { children: benefit.description })
         ] }, index)) }),
-        /* @__PURE__ */ jsx(motion.div, { className: "mt-12 text-center", variants: itemVariants$8, children: /* @__PURE__ */ jsx(Link, { to: "/contact", className: "btn btn-primary btn-lg", children: "Start Your Website Project" }) })
+        /* @__PURE__ */ jsx(motion.div, { className: "mt-12 text-center", variants: itemVariants$7, children: /* @__PURE__ */ jsx(Link, { to: "/contact", className: "btn btn-primary btn-lg", children: "Start Your Website Project" }) })
       ]
     }
   );
@@ -782,11 +815,11 @@ const faqs$4 = [
     answer: "While we can't guarantee specific rankings (no one can, and you should be wary of those who do), we have a strong track record of significantly improving our clients' search engine positions. We use proven strategies and continuously adapt to search engine algorithm changes to give you the best chance of ranking well."
   }
 ];
-const containerVariants$7 = {
+const containerVariants$6 = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
 };
-const itemVariants$7 = {
+const itemVariants$6 = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 }
 };
@@ -794,21 +827,21 @@ function WebsiteRanking() {
   return /* @__PURE__ */ jsxs(
     motion.div,
     {
-      className: "container mx-auto px-4 py-8",
+      className: "container mx-auto px-4 py-8 sm:py-12",
       initial: "hidden",
       animate: "visible",
-      variants: containerVariants$7,
+      variants: containerVariants$6,
       children: [
-        /* @__PURE__ */ jsx(motion.h1, { className: "text-5xl font-bold mb-6 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent", variants: itemVariants$7, children: "Website Ranking" }),
-        /* @__PURE__ */ jsx(motion.p, { className: "mb-6 text-xl text-center max-w-3xl mx-auto", variants: itemVariants$7, children: "In today's competitive digital world, securing top spots on search engines like Google is vital. Website ranking isn't just about being found; it's about being chosen." }),
-        /* @__PURE__ */ jsxs(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 gap-8 my-12", variants: itemVariants$7, children: [
-          /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 rounded-lg shadow-lg", children: [
-            /* @__PURE__ */ jsx("h2", { className: "text-2xl font-semibold mb-4", children: "What is Website Ranking?" }),
-            /* @__PURE__ */ jsx("p", { children: "Website ranking refers to the position your website holds on search engine result pages (SERPs) when someone searches for a specific keyword or phrase. Search engines rank websites based on hundreds of factors, including relevance, website quality, and user experience." })
+        /* @__PURE__ */ jsx(motion.h1, { className: "text-4xl sm:text-5xl md:text-6xl font-bold mb-6 sm:mb-8 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent", variants: itemVariants$6, children: "Website Ranking" }),
+        /* @__PURE__ */ jsx(motion.p, { className: "mb-8 text-xl sm:text-3xl text-center max-w-3xl mx-auto", variants: itemVariants$6, children: "In today's competitive digital world, securing top spots on search engines like Google is vital. Website ranking isn't just about being found; it's about being chosen." }),
+        /* @__PURE__ */ jsxs(motion.div, { className: "grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-8 my-12", variants: itemVariants$6, children: [
+          /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 sm:p-8 rounded-lg shadow-lg", children: [
+            /* @__PURE__ */ jsx("h2", { className: "text-2xl sm:text-5xl font-semibold mb-4 sm:mb-6", children: "What is Website Ranking?" }),
+            /* @__PURE__ */ jsx("p", { className: "text-lg sm:text-3xl", children: "Website ranking refers to the position your website holds on search engine result pages (SERPs) when someone searches for a specific keyword or phrase. Search engines rank websites based on hundreds of factors, including relevance, website quality, and user experience." })
           ] }),
-          /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 rounded-lg shadow-lg", children: [
-            /* @__PURE__ */ jsx("h2", { className: "text-2xl font-semibold mb-4", children: "Why Does Website Ranking Matter?" }),
-            /* @__PURE__ */ jsxs("ul", { className: "list-disc list-inside", children: [
+          /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 sm:p-8 rounded-lg shadow-lg", children: [
+            /* @__PURE__ */ jsx("h2", { className: "text-2xl sm:text-3xl font-semibold mb-4 sm:mb-6", children: "Why Does Website Ranking Matter?" }),
+            /* @__PURE__ */ jsxs("ul", { className: "list-disc list-inside text-lg sm:text-3xl space-y-2", children: [
               /* @__PURE__ */ jsxs("li", { children: [
                 /* @__PURE__ */ jsx("strong", { children: "Increased Visibility:" }),
                 " Higher ranking means more visibility"
@@ -828,22 +861,22 @@ function WebsiteRanking() {
             ] })
           ] })
         ] }),
-        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$7, children: "Our Website Ranking Process" }),
-        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-3 gap-6 mb-12", variants: itemVariants$7, children: [
+        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl sm:text-4xl font-semibold mt-12 sm:mt-16 mb-8 sm:mb-10 text-center", variants: itemVariants$6, children: "Our Website Ranking Process" }),
+        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mb-12 sm:mb-16", variants: itemVariants$6, children: [
           { title: "Website Audit", icon: "🔍", description: "Analyze your current website and its performance" },
           { title: "Keyword Research", icon: "🔑", description: "Identify valuable keywords for your business" },
           { title: "On-Page Optimization", icon: "📄", description: "Optimize your website's content and structure" },
           { title: "Content Strategy", icon: "📝", description: "Develop a content strategy targeting chosen keywords" },
           { title: "Link Building", icon: "🔗", description: "Implement ethical link building strategies" },
           { title: "Monitoring", icon: "📊", description: "Continuously monitor rankings and provide reports" }
-        ].map((step, index) => /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 rounded-lg shadow-lg text-center", children: [
-          /* @__PURE__ */ jsx("div", { className: "text-4xl mb-4", children: step.icon }),
-          /* @__PURE__ */ jsx("h3", { className: "text-xl font-semibold mb-2", children: step.title }),
-          /* @__PURE__ */ jsx("p", { children: step.description })
+        ].map((step, index) => /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 sm:p-8 rounded-lg shadow-lg text-center", children: [
+          /* @__PURE__ */ jsx("div", { className: "text-4xl sm:text-5xl mb-4", children: step.icon }),
+          /* @__PURE__ */ jsx("h3", { className: "text-xl sm:text-4xl font-semibold mb-3 sm:mb-4", children: step.title }),
+          /* @__PURE__ */ jsx("p", { className: "text-base sm:text-4xl", children: step.description })
         ] }, index)) }),
-        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$7, children: "Common Questions" }),
-        /* @__PURE__ */ jsx(motion.div, { variants: itemVariants$7, children: /* @__PURE__ */ jsx(FAQSection, { faqs: faqs$4 }) }),
-        /* @__PURE__ */ jsx(motion.div, { className: "mt-12 text-center", variants: itemVariants$7, children: /* @__PURE__ */ jsx(Link, { to: "/contact", className: "btn btn-primary btn-lg", children: "Boost Your Website Ranking" }) })
+        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl sm:text-4xl font-semibold mt-12 sm:mt-16 mb-8 sm:mb-10 text-center", variants: itemVariants$6, children: "Common Questions" }),
+        /* @__PURE__ */ jsx(motion.div, { variants: itemVariants$6, children: /* @__PURE__ */ jsx(FAQSection, { faqs: faqs$4 }) }),
+        /* @__PURE__ */ jsx(motion.div, { className: "mt-12 sm:mt-16 text-center", variants: itemVariants$6, children: /* @__PURE__ */ jsx(Link, { to: "/contact", className: "btn btn-primary btn-lg text-lg sm:text-xl px-6 sm:px-8 py-3 sm:py-4", children: "Boost Your Website Ranking" }) })
       ]
     }
   );
@@ -877,11 +910,11 @@ const faqs$3 = [
     answer: "Once your rental period ends, you can either extend the lease or transition to your own site. If you choose to build your own site, we can help transfer the traffic and rankings to your new platform."
   }
 ];
-const containerVariants$6 = {
+const containerVariants$5 = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
 };
-const itemVariants$6 = {
+const itemVariants$5 = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 }
 };
@@ -892,11 +925,11 @@ function WebsiteRenting() {
       className: "container mx-auto px-4 py-8",
       initial: "hidden",
       animate: "visible",
-      variants: containerVariants$6,
+      variants: containerVariants$5,
       children: [
-        /* @__PURE__ */ jsx(motion.h1, { className: "text-5xl font-bold mb-6 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent", variants: itemVariants$6, children: "Website Renting" }),
-        /* @__PURE__ */ jsx(motion.p, { className: "mb-6 text-xl text-center max-w-3xl mx-auto", variants: itemVariants$6, children: "In a rapidly evolving digital marketplace, waiting to build an online presence from scratch can feel like a slow process. That's where Website Renting comes in." }),
-        /* @__PURE__ */ jsxs(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 gap-8 my-12", variants: itemVariants$6, children: [
+        /* @__PURE__ */ jsx(motion.h1, { className: "text-5xl font-bold mb-6 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent", variants: itemVariants$5, children: "Website Renting" }),
+        /* @__PURE__ */ jsx(motion.p, { className: "mb-6 text-xl text-center max-w-3xl mx-auto", variants: itemVariants$5, children: "In a rapidly evolving digital marketplace, waiting to build an online presence from scratch can feel like a slow process. That's where Website Renting comes in." }),
+        /* @__PURE__ */ jsxs(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 gap-8 my-12", variants: itemVariants$5, children: [
           /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 rounded-lg shadow-lg", children: [
             /* @__PURE__ */ jsx("h2", { className: "text-2xl font-semibold mb-4", children: "What is Website Renting?" }),
             /* @__PURE__ */ jsx("p", { children: "Website renting allows businesses to lease websites that are already fully functional and optimized for search engines. These websites are pre-built, well-maintained, and rank highly for specific keywords relevant to your industry." })
@@ -923,8 +956,8 @@ function WebsiteRenting() {
             ] })
           ] })
         ] }),
-        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$6, children: "How Website Renting Works" }),
-        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-3 gap-6 mb-12", variants: itemVariants$6, children: [
+        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$5, children: "How Website Renting Works" }),
+        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-3 gap-6 mb-12", variants: itemVariants$5, children: [
           { title: "Selection", icon: "🔍", description: "Choose a site that aligns with your business" },
           { title: "Customization", icon: "🎨", description: "Adjust the site to reflect your brand" },
           { title: "Instant Traffic", icon: "🚀", description: "Start receiving visitors immediately" },
@@ -936,9 +969,9 @@ function WebsiteRenting() {
           /* @__PURE__ */ jsx("h3", { className: "text-xl font-semibold mb-2", children: step.title }),
           /* @__PURE__ */ jsx("p", { children: step.description })
         ] }, index)) }),
-        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$6, children: "Common Questions" }),
-        /* @__PURE__ */ jsx(motion.div, { variants: itemVariants$6, children: /* @__PURE__ */ jsx(FAQSection, { faqs: faqs$3 }) }),
-        /* @__PURE__ */ jsx(motion.div, { className: "mt-12 text-center", variants: itemVariants$6, children: /* @__PURE__ */ jsx(Link, { to: "/contact", className: "btn btn-primary btn-lg", children: "Start Website Renting" }) })
+        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$5, children: "Common Questions" }),
+        /* @__PURE__ */ jsx(motion.div, { variants: itemVariants$5, children: /* @__PURE__ */ jsx(FAQSection, { faqs: faqs$3 }) }),
+        /* @__PURE__ */ jsx(motion.div, { className: "mt-12 text-center", variants: itemVariants$5, children: /* @__PURE__ */ jsx(Link, { to: "/contact", className: "btn btn-primary btn-lg", children: "Start Website Renting" }) })
       ]
     }
   );
@@ -968,11 +1001,11 @@ const faqs$2 = [
     answer: "Facebook offers a variety of ad formats, including image ads, video ads, carousel ads (multiple images or videos), and collection ads (a mobile-first format that allows users to browse products). We can help you choose the right format based on your business goals."
   }
 ];
-const containerVariants$5 = {
+const containerVariants$4 = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
 };
-const itemVariants$5 = {
+const itemVariants$4 = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 }
 };
@@ -983,11 +1016,11 @@ function FacebookAdsService() {
       className: "container mx-auto px-4 py-8",
       initial: "hidden",
       animate: "visible",
-      variants: containerVariants$5,
+      variants: containerVariants$4,
       children: [
-        /* @__PURE__ */ jsx(motion.h1, { className: "text-5xl font-bold mb-6 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent", variants: itemVariants$5, children: "Facebook Ads Service" }),
-        /* @__PURE__ */ jsx(motion.p, { className: "mb-6 text-xl text-center max-w-3xl mx-auto", variants: itemVariants$5, children: "Facebook is one of the most powerful advertising platforms available, with over 2.8 billion active users. At Peak Growth Digital, we create targeted, high-converting Facebook ad campaigns that reach the right audience and deliver measurable results." }),
-        /* @__PURE__ */ jsxs(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 gap-8 my-12", variants: itemVariants$5, children: [
+        /* @__PURE__ */ jsx(motion.h1, { className: "text-5xl font-bold mb-6 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent", variants: itemVariants$4, children: "Facebook Ads Service" }),
+        /* @__PURE__ */ jsx(motion.p, { className: "mb-6 text-xl text-center max-w-3xl mx-auto", variants: itemVariants$4, children: "Facebook is one of the most powerful advertising platforms available, with over 2.8 billion active users. At Peak Growth Digital, we create targeted, high-converting Facebook ad campaigns that reach the right audience and deliver measurable results." }),
+        /* @__PURE__ */ jsxs(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 gap-8 my-12", variants: itemVariants$4, children: [
           /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 rounded-lg shadow-lg", children: [
             /* @__PURE__ */ jsx("h2", { className: "text-2xl font-semibold mb-4", children: "What is Facebook Ads?" }),
             /* @__PURE__ */ jsx("p", { children: "Facebook Ads allow businesses to create targeted advertisements that appear on users' newsfeeds, stories, and even in Messenger. Unlike traditional advertising, Facebook's advanced targeting tools allow you to zero in on your ideal customers based on demographics, interests, behaviors, and even location." })
@@ -1010,8 +1043,8 @@ function FacebookAdsService() {
             ] })
           ] })
         ] }),
-        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$5, children: "How We Create High-Converting Facebook Ad Campaigns" }),
-        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12", variants: itemVariants$5, children: [
+        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$4, children: "How We Create High-Converting Facebook Ad Campaigns" }),
+        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12", variants: itemVariants$4, children: [
           { title: "Audience Research", icon: "🔍", description: "We research and create targeted audience segments" },
           { title: "Ad Design", icon: "🎨", description: "We design visually appealing ads with compelling copy" },
           { title: "Campaign Setup", icon: "⚙️", description: "We set up and optimize your campaigns for best performance" },
@@ -1021,10 +1054,10 @@ function FacebookAdsService() {
           /* @__PURE__ */ jsx("h3", { className: "text-xl font-semibold mb-2", children: step.title }),
           /* @__PURE__ */ jsx("p", { children: step.description })
         ] }, index)) }),
-        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$5, children: "Common Questions About Facebook Ads" }),
-        /* @__PURE__ */ jsx(motion.div, { variants: itemVariants$5, children: /* @__PURE__ */ jsx(FAQSection, { faqs: faqs$2 }) }),
-        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$5, children: "Benefits of Facebook Ads" }),
-        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 gap-6 mb-12", variants: itemVariants$5, children: [
+        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$4, children: "Common Questions About Facebook Ads" }),
+        /* @__PURE__ */ jsx(motion.div, { variants: itemVariants$4, children: /* @__PURE__ */ jsx(FAQSection, { faqs: faqs$2 }) }),
+        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$4, children: "Benefits of Facebook Ads" }),
+        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 gap-6 mb-12", variants: itemVariants$4, children: [
           { title: "Increased Website Traffic", description: "Drive more traffic to your website, boosting sales and conversions" },
           { title: "Lead Generation", description: "Collect valuable leads through Facebook's Lead Ads feature" },
           { title: "Brand Awareness", description: "Get your brand in front of the right people, locally or globally" },
@@ -1033,7 +1066,7 @@ function FacebookAdsService() {
           /* @__PURE__ */ jsx("h3", { className: "text-xl font-semibold mb-2", children: benefit.title }),
           /* @__PURE__ */ jsx("p", { children: benefit.description })
         ] }, index)) }),
-        /* @__PURE__ */ jsx(motion.div, { className: "mt-12 text-center", variants: itemVariants$5, children: /* @__PURE__ */ jsx(Link, { to: "/contact", className: "btn btn-primary btn-lg", children: "Start Your Facebook Ads Campaign" }) })
+        /* @__PURE__ */ jsx(motion.div, { className: "mt-12 text-center", variants: itemVariants$4, children: /* @__PURE__ */ jsx(Link, { to: "/contact", className: "btn btn-primary btn-lg", children: "Start Your Facebook Ads Campaign" }) })
       ]
     }
   );
@@ -1063,11 +1096,11 @@ const faqs$1 = [
     answer: "Yes, GBP is user-friendly, and many businesses manage it themselves. However, to see maximum benefit, professional optimization can ensure your profile is fully leveraging all available tools and ranking factors."
   }
 ];
-const containerVariants$4 = {
+const containerVariants$3 = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
 };
-const itemVariants$4 = {
+const itemVariants$3 = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 }
 };
@@ -1078,11 +1111,11 @@ function GBPRanking() {
       className: "container mx-auto px-4 py-8",
       initial: "hidden",
       animate: "visible",
-      variants: containerVariants$4,
+      variants: containerVariants$3,
       children: [
-        /* @__PURE__ */ jsx(motion.h1, { className: "text-5xl font-bold mb-6 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent", variants: itemVariants$4, children: "Google Business Profile (GBP) Ranking" }),
-        /* @__PURE__ */ jsx(motion.p, { className: "mb-6 text-xl text-center max-w-3xl mx-auto", variants: itemVariants$4, children: "In today's local-first digital world, having an optimized Google Business Profile (GBP) is essential for attracting nearby customers. At Peak Growth Digital, we specialize in helping businesses rank at the top of local search results through our GBP ranking services, putting your business front and center for users who are searching for your services in your area." }),
-        /* @__PURE__ */ jsxs(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 gap-8 my-12", variants: itemVariants$4, children: [
+        /* @__PURE__ */ jsx(motion.h1, { className: "text-5xl font-bold mb-6 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent", variants: itemVariants$3, children: "Google Business Profile (GBP) Ranking" }),
+        /* @__PURE__ */ jsx(motion.p, { className: "mb-6 text-xl text-center max-w-3xl mx-auto", variants: itemVariants$3, children: "In today's local-first digital world, having an optimized Google Business Profile (GBP) is essential for attracting nearby customers. At Peak Growth Digital, we specialize in helping businesses rank at the top of local search results through our GBP ranking services, putting your business front and center for users who are searching for your services in your area." }),
+        /* @__PURE__ */ jsxs(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 gap-8 my-12", variants: itemVariants$3, children: [
           /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 rounded-lg shadow-lg", children: [
             /* @__PURE__ */ jsx("h2", { className: "text-2xl font-semibold mb-4", children: "What is GBP Ranking?" }),
             /* @__PURE__ */ jsx("p", { children: 'Your Google Business Profile is the profile that appears when someone searches for your business or relevant services in Google Search or Google Maps. Having a well-optimized profile ensures your business shows up when potential customers search for terms like "restaurants near me" or "plumber in [your city]."' })
@@ -1099,9 +1132,9 @@ function GBPRanking() {
             ] })
           ] })
         ] }),
-        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$4, children: "Why is Google Business Profile Important for Local Search?" }),
-        /* @__PURE__ */ jsx(motion.p, { className: "mb-6 text-center", variants: itemVariants$4, children: "Google prioritizes local search results, particularly for mobile users. Your GBP serves as a mini-website, offering searchers the most critical information they need to choose your business over others. Optimizing your GBP allows your business to:" }),
-        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-3 gap-6 mb-12", variants: itemVariants$4, children: [
+        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$3, children: "Why is Google Business Profile Important for Local Search?" }),
+        /* @__PURE__ */ jsx(motion.p, { className: "mb-6 text-center", variants: itemVariants$3, children: "Google prioritizes local search results, particularly for mobile users. Your GBP serves as a mini-website, offering searchers the most critical information they need to choose your business over others. Optimizing your GBP allows your business to:" }),
+        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-3 gap-6 mb-12", variants: itemVariants$3, children: [
           { title: "Rank Higher", icon: "🏆", description: "Appear at the top of local search results, especially in the local pack" },
           { title: "Increase Foot Traffic", icon: "👣", description: "Optimized profiles lead to more visits, both virtual and physical" },
           { title: "Enhance Credibility", icon: "🤝", description: "Positive reviews and an updated profile build trust" }
@@ -1110,9 +1143,9 @@ function GBPRanking() {
           /* @__PURE__ */ jsx("h3", { className: "text-xl font-semibold mb-2", children: benefit.title }),
           /* @__PURE__ */ jsx("p", { children: benefit.description })
         ] }, index)) }),
-        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$4, children: "Common Questions" }),
-        /* @__PURE__ */ jsx(motion.div, { variants: itemVariants$4, children: /* @__PURE__ */ jsx(FAQSection, { faqs: faqs$1 }) }),
-        /* @__PURE__ */ jsx(motion.div, { className: "mt-12 text-center", variants: itemVariants$4, children: /* @__PURE__ */ jsx(Link, { to: "/contact", className: "btn btn-primary btn-lg", children: "Improve Your Local Presence" }) })
+        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$3, children: "Common Questions" }),
+        /* @__PURE__ */ jsx(motion.div, { variants: itemVariants$3, children: /* @__PURE__ */ jsx(FAQSection, { faqs: faqs$1 }) }),
+        /* @__PURE__ */ jsx(motion.div, { className: "mt-12 text-center", variants: itemVariants$3, children: /* @__PURE__ */ jsx(Link, { to: "/contact", className: "btn btn-primary btn-lg", children: "Improve Your Local Presence" }) })
       ]
     }
   );
@@ -1142,11 +1175,11 @@ const faqs = [
     answer: "Yes! Google Ads works well for almost any business type, from local services to e-commerce. Whether you want to drive sales, generate leads, or increase brand awareness, Google Ads can be tailored to meet your needs."
   }
 ];
-const containerVariants$3 = {
+const containerVariants$2 = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
 };
-const itemVariants$3 = {
+const itemVariants$2 = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 }
 };
@@ -1157,11 +1190,11 @@ function GoogleAdsService() {
       className: "container mx-auto px-4 py-8",
       initial: "hidden",
       animate: "visible",
-      variants: containerVariants$3,
+      variants: containerVariants$2,
       children: [
-        /* @__PURE__ */ jsx(motion.h1, { className: "text-5xl font-bold mb-6 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent", variants: itemVariants$3, children: "Google Ads Service" }),
-        /* @__PURE__ */ jsx(motion.p, { className: "mb-6 text-xl text-center max-w-3xl mx-auto", variants: itemVariants$3, children: "When people are searching for products or services, they often start with Google. At Peak Growth Digital, we create and manage Google Ads campaigns that drive targeted traffic to your website and generate qualified leads, all while maximizing your return on investment (ROI)." }),
-        /* @__PURE__ */ jsxs(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 gap-8 my-12", variants: itemVariants$3, children: [
+        /* @__PURE__ */ jsx(motion.h1, { className: "text-5xl font-bold mb-6 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent", variants: itemVariants$2, children: "Google Ads Service" }),
+        /* @__PURE__ */ jsx(motion.p, { className: "mb-6 text-xl text-center max-w-3xl mx-auto", variants: itemVariants$2, children: "When people are searching for products or services, they often start with Google. At Peak Growth Digital, we create and manage Google Ads campaigns that drive targeted traffic to your website and generate qualified leads, all while maximizing your return on investment (ROI)." }),
+        /* @__PURE__ */ jsxs(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 gap-8 my-12", variants: itemVariants$2, children: [
           /* @__PURE__ */ jsxs("div", { className: "bg-base-200 p-6 rounded-lg shadow-lg", children: [
             /* @__PURE__ */ jsx("h2", { className: "text-2xl font-semibold mb-4", children: "What is Google Ads?" }),
             /* @__PURE__ */ jsx("p", { children: "Google Ads is an online advertising platform that allows businesses to display ads on Google's search engine results pages (SERPs) as well as across Google's vast Display Network. Google Ads works on a pay-per-click (PPC) model, which means you only pay when someone clicks on your ad." })
@@ -1184,8 +1217,8 @@ function GoogleAdsService() {
             ] })
           ] })
         ] }),
-        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$3, children: "Types of Google Ads Campaigns We Offer" }),
-        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12", variants: itemVariants$3, children: [
+        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$2, children: "Types of Google Ads Campaigns We Offer" }),
+        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12", variants: itemVariants$2, children: [
           { title: "Search Ads", icon: "🔍", description: "Appear at the top of Google's search results for relevant keywords" },
           { title: "Display Ads", icon: "🖼️", description: "Image-based ads across Google's Display Network" },
           { title: "Shopping Ads", icon: "🛍️", description: "Promote products directly on Google's search results pages" },
@@ -1196,8 +1229,8 @@ function GoogleAdsService() {
           /* @__PURE__ */ jsx("h3", { className: "text-xl font-semibold mb-2", children: campaign.title }),
           /* @__PURE__ */ jsx("p", { children: campaign.description })
         ] }, index)) }),
-        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$3, children: "Our Google Ads Process" }),
-        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12", variants: itemVariants$3, children: [
+        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$2, children: "Our Google Ads Process" }),
+        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12", variants: itemVariants$2, children: [
           { title: "Keyword Research", icon: "🔑", description: "Select the best keywords based on your business goals" },
           { title: "Ad Creation", icon: "✍️", description: "Craft compelling ad copy and design eye-catching visuals" },
           { title: "Campaign Setup", icon: "⚙️", description: "Optimize campaign settings for your target audience" },
@@ -1208,10 +1241,10 @@ function GoogleAdsService() {
           /* @__PURE__ */ jsx("h3", { className: "text-xl font-semibold mb-2", children: step.title }),
           /* @__PURE__ */ jsx("p", { children: step.description })
         ] }, index)) }),
-        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$3, children: "Common Questions About Google Ads" }),
-        /* @__PURE__ */ jsx(motion.div, { variants: itemVariants$3, children: /* @__PURE__ */ jsx(FAQSection, { faqs }) }),
-        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$3, children: "Benefits of Google Ads" }),
-        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 gap-6 mb-12", variants: itemVariants$3, children: [
+        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$2, children: "Common Questions About Google Ads" }),
+        /* @__PURE__ */ jsx(motion.div, { variants: itemVariants$2, children: /* @__PURE__ */ jsx(FAQSection, { faqs }) }),
+        /* @__PURE__ */ jsx(motion.h2, { className: "text-3xl font-semibold mt-12 mb-6 text-center", variants: itemVariants$2, children: "Benefits of Google Ads" }),
+        /* @__PURE__ */ jsx(motion.div, { className: "grid grid-cols-1 md:grid-cols-2 gap-6 mb-12", variants: itemVariants$2, children: [
           { title: "Instant Visibility", description: "Get in front of users actively searching for your products or services" },
           { title: "Flexible Budgeting", description: "Control your ad spend with customizable budgets" },
           { title: "Measurable Results", description: "Track every click, impression, and conversion for full transparency" },
@@ -1220,7 +1253,7 @@ function GoogleAdsService() {
           /* @__PURE__ */ jsx("h3", { className: "text-xl font-semibold mb-2", children: benefit.title }),
           /* @__PURE__ */ jsx("p", { children: benefit.description })
         ] }, index)) }),
-        /* @__PURE__ */ jsx(motion.div, { className: "mt-12 text-center", variants: itemVariants$3, children: /* @__PURE__ */ jsx(Link, { to: "/contact", className: "btn btn-primary btn-lg", children: "Start Your Google Ads Campaign" }) })
+        /* @__PURE__ */ jsx(motion.div, { className: "mt-12 text-center", variants: itemVariants$2, children: /* @__PURE__ */ jsx(Link, { to: "/contact", className: "btn btn-primary btn-lg", children: "Start Your Google Ads Campaign" }) })
       ]
     }
   );
@@ -1365,7 +1398,7 @@ const route11 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePrope
   loader,
   meta: meta$3
 }, Symbol.toStringTag, { value: "Module" }));
-new PrismaClient();
+const prisma = new PrismaClient();
 const meta$2 = () => {
   return [
     { title: "Contact Peak Growth Digital - Get in Touch" },
@@ -1390,6 +1423,42 @@ const action$1 = async ({ request }) => {
     return json({ errors }, { status: 400 });
   }
   try {
+    const contact = await prisma.contact.create({
+      data: {
+        name,
+        email,
+        message
+      }
+    });
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || "587"),
+      secure: process.env.SMTP_SECURE === "true",
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+      },
+      tls: {
+        rejectUnauthorized: false
+        // Accept self-signed certificates
+      }
+    });
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM,
+      to: process.env.SMTP_TO,
+      subject: "New Contact Form Submission",
+      text: `
+        Name: ${name}
+        Email: ${email}
+        Message: ${message}
+      `,
+      html: `
+        <h2>New Contact Form Submission</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Message:</strong> ${message}</p>
+      `
+    });
     return json({ success: true });
   } catch (error) {
     console.error("Error processing contact form:", error);
@@ -1422,7 +1491,15 @@ function Contact() {
         ((_f = actionData == null ? void 0 : actionData.errors) == null ? void 0 : _f.message) && /* @__PURE__ */ jsx("p", { className: "text-error text-sm mt-1", children: actionData.errors.message })
       ] }),
       /* @__PURE__ */ jsx("button", { type: "submit", className: "btn btn-primary", disabled: navigation.state === "submitting", children: navigation.state === "submitting" ? "Sending..." : "Send Message" })
-    ] })
+    ] }),
+    /* @__PURE__ */ jsx("div", { className: "flex justify-center", children: /* @__PURE__ */ jsx(
+      "iframe",
+      {
+        src: "https://schedule.devintripp.com/embed/scheduler?userId=f791bdbd-3621-459a-856e-071f2cb73ac6&apiKey=0231d600feed5ace31069cb7fa4ea8f48b5a9074e1afc7d1cfbe8e924a0b2987",
+        width: "100%",
+        height: "600"
+      }
+    ) })
   ] });
 }
 const route12 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
@@ -1449,51 +1526,49 @@ function JsonLd({ data }) {
 }
 const testimonials = [
   {
-    id: 1,
-    name: "John Doe",
-    company: "Tech Innovators Inc.",
-    text: "Peak Growth Digital transformed our online presence. Our website traffic has increased by 200% since working with them!"
+    name: "Sarah Johnson",
+    company: "TechStart Solutions",
+    text: "Peak Growth Digital transformed our online presence. Our traffic has increased by 200% since working with them!"
   },
   {
-    id: 2,
-    name: "Jane Smith",
-    company: "Local Business Solutions",
-    text: "The team at Peak Growth Digital is incredibly knowledgeable and responsive. They've helped us dominate local search results."
+    name: "Michael Chen",
+    company: "GreenLeaf Innovations",
+    text: "Their expertise in SEO and digital marketing strategies has been invaluable to our business growth."
   },
   {
-    id: 3,
-    name: "Mike Johnson",
-    company: "E-commerce Experts",
-    text: "Our e-commerce sales have skyrocketed thanks to Peak Growth Digital's SEO and digital marketing strategies."
+    name: "Emily Rodriguez",
+    company: "Fitness Revolution",
+    text: "We've seen a significant boost in client engagement and conversions thanks to Peak Growth Digital's social media management."
   }
 ];
-const containerVariants$2 = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
-};
-const itemVariants$2 = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 }
-};
 function Testimonials() {
-  return /* @__PURE__ */ jsx(
+  const [current, setCurrent] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % testimonials.length);
+    }, 5e3);
+    return () => clearInterval(timer);
+  }, []);
+  return /* @__PURE__ */ jsx("div", { className: "relative h-64 overflow-hidden w-full max-w-md mx-auto", children: /* @__PURE__ */ jsx(AnimatePresence, { initial: false, mode: "wait", children: /* @__PURE__ */ jsx(
     motion.div,
     {
-      className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6",
-      variants: containerVariants$2,
-      initial: "hidden",
-      animate: "visible",
-      children: testimonials.map((testimonial) => /* @__PURE__ */ jsx(motion.div, { className: "card bg-base-100 shadow-xl", variants: itemVariants$2, children: /* @__PURE__ */ jsxs("div", { className: "card-body", children: [
-        /* @__PURE__ */ jsxs("p", { className: "mb-4", children: [
+      className: "absolute inset-0 flex items-center justify-center",
+      initial: { opacity: 0, x: 300 },
+      animate: { opacity: 1, x: 0 },
+      exit: { opacity: 0, x: -300 },
+      transition: { duration: 0.5 },
+      children: /* @__PURE__ */ jsxs("div", { className: "text-center p-6 bg-base-100 rounded-lg shadow-lg w-full", children: [
+        /* @__PURE__ */ jsxs("p", { className: "text-lg mb-4", children: [
           '"',
-          testimonial.text,
+          testimonials[current].text,
           '"'
         ] }),
-        /* @__PURE__ */ jsx("p", { className: "font-bold", children: testimonial.name }),
-        /* @__PURE__ */ jsx("p", { className: "text-sm", children: testimonial.company })
-      ] }) }, testimonial.id))
-    }
-  );
+        /* @__PURE__ */ jsx("p", { className: "font-bold", children: testimonials[current].name }),
+        /* @__PURE__ */ jsx("p", { className: "text-sm opacity-70", children: testimonials[current].company })
+      ] })
+    },
+    current
+  ) }) });
 }
 const services = [
   { name: "Website Ranking", basePrice: 500 },
@@ -1659,7 +1734,7 @@ function Index() {
     /* @__PURE__ */ jsx(AnimatePresence, { children: /* @__PURE__ */ jsxs(
       motion.div,
       {
-        className: "container mx-auto px-4",
+        className: "w-full overflow-hidden",
         initial: "hidden",
         animate: "visible",
         variants: containerVariants$1,
@@ -1668,7 +1743,7 @@ function Index() {
             /* @__PURE__ */ jsx(
               motion.h1,
               {
-                className: "text-5xl font-bold mb-8",
+                className: "text-5xl font-bold mb-6",
                 initial: { opacity: 0, y: -50 },
                 animate: { opacity: 1, y: 0 },
                 transition: { duration: 0.8, delay: 0.2 },
@@ -1678,7 +1753,7 @@ function Index() {
             /* @__PURE__ */ jsx(
               motion.p,
               {
-                className: "py-6 text-lg",
+                className: "py-6",
                 initial: { opacity: 0 },
                 animate: { opacity: 1 },
                 transition: { duration: 0.8, delay: 0.4 },
@@ -1697,16 +1772,16 @@ function Index() {
           ] }) }) }),
           /* @__PURE__ */ jsxs(motion.section, { className: "py-20 bg-base-200", variants: itemVariants$1, children: [
             /* @__PURE__ */ jsx("h2", { className: "text-4xl font-bold text-center mb-12", children: "Our Services" }),
-            /* @__PURE__ */ jsx("div", { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8", children: services2.map((service, index) => /* @__PURE__ */ jsx(
+            /* @__PURE__ */ jsx("div", { className: "grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-6 sm:text-3xl", children: services2.map((service, index) => /* @__PURE__ */ jsx(
               motion.div,
               {
-                className: "card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300",
+                className: "card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 w-full",
                 variants: itemVariants$1,
                 initial: "hidden",
                 animate: "visible",
                 transition: { delay: index * 0.1 },
                 children: /* @__PURE__ */ jsxs("div", { className: "card-body", children: [
-                  /* @__PURE__ */ jsxs("h3", { className: "card-title text-2xl flex items-center", children: [
+                  /* @__PURE__ */ jsxs("h3", { className: "card-title text-2xl sm:text-4xl", children: [
                     /* @__PURE__ */ jsx("span", { className: "text-3xl mr-2", children: service.icon }),
                     service.name
                   ] }),
@@ -1723,20 +1798,20 @@ function Index() {
           ] }),
           /* @__PURE__ */ jsxs(motion.section, { className: "py-20 bg-gradient-to-br from-accent to-accent-focus text-accent-content", variants: itemVariants$1, children: [
             /* @__PURE__ */ jsx("h2", { className: "text-4xl font-bold text-center mb-12", children: "What Our Clients Say" }),
-            /* @__PURE__ */ jsx(Testimonials, {})
+            /* @__PURE__ */ jsx("div", { className: "container mx-auto px-4", children: /* @__PURE__ */ jsx(Testimonials, {}) })
           ] }),
-          /* @__PURE__ */ jsxs(motion.section, { className: "py-20", variants: itemVariants$1, children: [
+          /* @__PURE__ */ jsxs(motion.section, { className: "py-20 sm:text:3xl", variants: itemVariants$1, children: [
             /* @__PURE__ */ jsx("h2", { className: "text-4xl font-bold text-center mb-12", children: "Pricing Calculator" }),
-            /* @__PURE__ */ jsx(PricingCalculator, {})
+            /* @__PURE__ */ jsx("div", { className: "container mx-auto max-w-2xl", children: /* @__PURE__ */ jsx(PricingCalculator, {}) })
           ] }),
           /* @__PURE__ */ jsxs(motion.section, { className: "py-20 bg-base-200", variants: itemVariants$1, children: [
             /* @__PURE__ */ jsx("h2", { className: "text-4xl font-bold text-center mb-12", children: "Stay Updated" }),
-            /* @__PURE__ */ jsxs("div", { className: "max-w-md mx-auto", children: [
+            /* @__PURE__ */ jsxs("div", { className: "container mx-auto max-w-md", children: [
               /* @__PURE__ */ jsx(NewsletterSignup, {}),
               (actionData == null ? void 0 : actionData.success) && /* @__PURE__ */ jsx(
                 motion.p,
                 {
-                  className: "text-success text-center mt-4",
+                  className: "text-success text-center mt-6",
                   initial: { opacity: 0, y: 20 },
                   animate: { opacity: 1, y: 0 },
                   children: "Thank you for subscribing to our newsletter!"
@@ -1825,7 +1900,7 @@ const route14 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePrope
   default: About,
   meta
 }, Symbol.toStringTag, { value: "Module" }));
-const serverManifest = { "entry": { "module": "/assets/entry.client-DTIDw1NP.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/components-DMBqBoRK.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": true, "module": "/assets/root-CkEzgPG7.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/components-DMBqBoRK.js", "/assets/index-aWJx3OZ6.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/services.social-media-management": { "id": "routes/services.social-media-management", "parentId": "root", "path": "services/social-media-management", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.social-media-management-BUY8laVK.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/FAQSection-DixTOksr.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/services.business-citations": { "id": "routes/services.business-citations", "parentId": "root", "path": "services/business-citations", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.business-citations-Ceq1hUjd.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/FAQSection-DixTOksr.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/services.digital-services": { "id": "routes/services.digital-services", "parentId": "root", "path": "services/digital-services", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.digital-services-ChQ3kdKx.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/FAQSection-DixTOksr.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/services.website-creation": { "id": "routes/services.website-creation", "parentId": "root", "path": "services/website-creation", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.website-creation-p9Z2zxsV.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/FAQSection-DixTOksr.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/services.website-ranking": { "id": "routes/services.website-ranking", "parentId": "root", "path": "services/website-ranking", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.website-ranking-BQfwso2h.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/FAQSection-DixTOksr.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/services.website-renting": { "id": "routes/services.website-renting", "parentId": "root", "path": "services/website-renting", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.website-renting-gwfHd4nj.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/FAQSection-DixTOksr.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/services.facebook-ads": { "id": "routes/services.facebook-ads", "parentId": "root", "path": "services/facebook-ads", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.facebook-ads-C1SzL98H.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/FAQSection-DixTOksr.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/services.gbp-ranking": { "id": "routes/services.gbp-ranking", "parentId": "root", "path": "services/gbp-ranking", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.gbp-ranking-CJWhunrJ.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/FAQSection-DixTOksr.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/services.google-ads": { "id": "routes/services.google-ads", "parentId": "root", "path": "services/google-ads", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.google-ads-3TUOV3rk.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/FAQSection-DixTOksr.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/blog.$postId": { "id": "routes/blog.$postId", "parentId": "root", "path": "blog/:postId", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/blog._postId-C_LtPl3q.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/components-DMBqBoRK.js"], "css": [] }, "routes/blog._index": { "id": "routes/blog._index", "parentId": "root", "path": "blog", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/blog._index-I8RjDVEI.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/components-DMBqBoRK.js"], "css": [] }, "routes/contact": { "id": "routes/contact", "parentId": "root", "path": "contact", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/contact-DF_1Ymml.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/components-DMBqBoRK.js"], "css": [] }, "routes/_index": { "id": "routes/_index", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_index-P7vJGxyu.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/JsonLd-DPEObuuU.js", "/assets/proxy-CeJI3rgl.js", "/assets/components-DMBqBoRK.js", "/assets/index-aWJx3OZ6.js", "/assets/use-constant-DZc81Vim.js"], "css": [] }, "routes/about": { "id": "routes/about", "parentId": "root", "path": "about", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/about-DG1f08By.js", "imports": ["/assets/index-CFzYG15F.js", "/assets/JsonLd-DPEObuuU.js", "/assets/proxy-CeJI3rgl.js", "/assets/use-constant-DZc81Vim.js"], "css": [] } }, "url": "/assets/manifest-7afae83b.js", "version": "7afae83b" };
+const serverManifest = { "entry": { "module": "/assets/entry.client-D8hzwh3s.js", "imports": ["/assets/index-BbeBfsq6.js", "/assets/components-CeQ6paOd.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": true, "module": "/assets/root-UZwKC4SH.js", "imports": ["/assets/index-BbeBfsq6.js", "/assets/components-CeQ6paOd.js", "/assets/index-DYGMjOzb.js", "/assets/use-constant-CyT-3G4W.js"], "css": [] }, "routes/services.social-media-management": { "id": "routes/services.social-media-management", "parentId": "root", "path": "services/social-media-management", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.social-media-management-DCcuVc7Z.js", "imports": ["/assets/index-BbeBfsq6.js", "/assets/FAQSection-DFhl9y_S.js", "/assets/proxy-DN6TZeaK.js", "/assets/components-CeQ6paOd.js", "/assets/use-constant-CyT-3G4W.js"], "css": [] }, "routes/services.business-citations": { "id": "routes/services.business-citations", "parentId": "root", "path": "services/business-citations", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.business-citations-ZIEvI10O.js", "imports": ["/assets/index-BbeBfsq6.js", "/assets/FAQSection-DFhl9y_S.js", "/assets/proxy-DN6TZeaK.js", "/assets/components-CeQ6paOd.js", "/assets/use-constant-CyT-3G4W.js"], "css": [] }, "routes/services.digital-services": { "id": "routes/services.digital-services", "parentId": "root", "path": "services/digital-services", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.digital-services-sJ0s0JzX.js", "imports": ["/assets/index-BbeBfsq6.js", "/assets/FAQSection-DFhl9y_S.js", "/assets/proxy-DN6TZeaK.js", "/assets/components-CeQ6paOd.js", "/assets/use-constant-CyT-3G4W.js"], "css": [] }, "routes/services.website-creation": { "id": "routes/services.website-creation", "parentId": "root", "path": "services/website-creation", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.website-creation-1iiFwtxq.js", "imports": ["/assets/index-BbeBfsq6.js", "/assets/FAQSection-DFhl9y_S.js", "/assets/proxy-DN6TZeaK.js", "/assets/components-CeQ6paOd.js", "/assets/use-constant-CyT-3G4W.js"], "css": [] }, "routes/services.website-ranking": { "id": "routes/services.website-ranking", "parentId": "root", "path": "services/website-ranking", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.website-ranking-CpU7P5NV.js", "imports": ["/assets/index-BbeBfsq6.js", "/assets/FAQSection-DFhl9y_S.js", "/assets/proxy-DN6TZeaK.js", "/assets/components-CeQ6paOd.js", "/assets/use-constant-CyT-3G4W.js"], "css": [] }, "routes/services.website-renting": { "id": "routes/services.website-renting", "parentId": "root", "path": "services/website-renting", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.website-renting-Cs26l7sJ.js", "imports": ["/assets/index-BbeBfsq6.js", "/assets/FAQSection-DFhl9y_S.js", "/assets/proxy-DN6TZeaK.js", "/assets/components-CeQ6paOd.js", "/assets/use-constant-CyT-3G4W.js"], "css": [] }, "routes/services.facebook-ads": { "id": "routes/services.facebook-ads", "parentId": "root", "path": "services/facebook-ads", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.facebook-ads-B1P0hAN5.js", "imports": ["/assets/index-BbeBfsq6.js", "/assets/FAQSection-DFhl9y_S.js", "/assets/proxy-DN6TZeaK.js", "/assets/components-CeQ6paOd.js", "/assets/use-constant-CyT-3G4W.js"], "css": [] }, "routes/services.gbp-ranking": { "id": "routes/services.gbp-ranking", "parentId": "root", "path": "services/gbp-ranking", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.gbp-ranking-Dd_jD0-U.js", "imports": ["/assets/index-BbeBfsq6.js", "/assets/FAQSection-DFhl9y_S.js", "/assets/proxy-DN6TZeaK.js", "/assets/components-CeQ6paOd.js", "/assets/use-constant-CyT-3G4W.js"], "css": [] }, "routes/services.google-ads": { "id": "routes/services.google-ads", "parentId": "root", "path": "services/google-ads", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/services.google-ads-Com4YYg9.js", "imports": ["/assets/index-BbeBfsq6.js", "/assets/FAQSection-DFhl9y_S.js", "/assets/proxy-DN6TZeaK.js", "/assets/components-CeQ6paOd.js", "/assets/use-constant-CyT-3G4W.js"], "css": [] }, "routes/blog.$postId": { "id": "routes/blog.$postId", "parentId": "root", "path": "blog/:postId", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/blog._postId-Dm2DVO8S.js", "imports": ["/assets/index-BbeBfsq6.js", "/assets/components-CeQ6paOd.js"], "css": [] }, "routes/blog._index": { "id": "routes/blog._index", "parentId": "root", "path": "blog", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/blog._index-O0I8Txnw.js", "imports": ["/assets/index-BbeBfsq6.js", "/assets/components-CeQ6paOd.js"], "css": [] }, "routes/contact": { "id": "routes/contact", "parentId": "root", "path": "contact", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/contact-wysA7umL.js", "imports": ["/assets/index-BbeBfsq6.js", "/assets/components-CeQ6paOd.js"], "css": [] }, "routes/_index": { "id": "routes/_index", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_index-Ci8Na00G.js", "imports": ["/assets/index-BbeBfsq6.js", "/assets/JsonLd-D1te51OD.js", "/assets/index-DYGMjOzb.js", "/assets/proxy-DN6TZeaK.js", "/assets/components-CeQ6paOd.js", "/assets/use-constant-CyT-3G4W.js"], "css": [] }, "routes/about": { "id": "routes/about", "parentId": "root", "path": "about", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/about-CGGmlC1_.js", "imports": ["/assets/index-BbeBfsq6.js", "/assets/JsonLd-D1te51OD.js", "/assets/proxy-DN6TZeaK.js", "/assets/use-constant-CyT-3G4W.js"], "css": [] } }, "url": "/assets/manifest-98c5e274.js", "version": "98c5e274" };
 const mode = "production";
 const assetsBuildDirectory = "build/client";
 const basename = "/";

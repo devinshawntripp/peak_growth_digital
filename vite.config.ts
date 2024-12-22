@@ -4,4 +4,12 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({
   plugins: [remix(), tsconfigPaths()],
+  server: {
+    fs: {
+      allow: ['..']
+    }
+  },
+  optimizeDeps: {
+    include: ['@remix-run/react', '@remix-run/server-runtime']
+  }
 })
