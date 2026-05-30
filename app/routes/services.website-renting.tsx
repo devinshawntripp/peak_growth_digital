@@ -7,7 +7,7 @@ import FAQSection from '~/components/FAQSection';
 export const meta: MetaFunction = () => {
   return [
     { title: "Website Renting Services - Peak Growth Digital" },
-    { name: "description", content: "Rent high-ranking websites to generate leads and drive sales without the time investment of building a new site. Learn about our website renting services." },
+    { name: "description", content: "Lease ready-made, high-ranking websites to reach more customers and grow your online visibility without the time investment of building a new site. Learn about our website leasing services." },
   ];
 };
 
