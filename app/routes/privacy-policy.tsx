@@ -127,7 +127,24 @@ export default function PrivacyPolicy() {
                     </section>
 
                     <section className="mb-8">
-                        <h2 className="text-2xl font-semibold mb-4">8. Contact Us</h2>
+                        <h2 className="text-2xl font-semibold mb-4">8. SMS / Text Messaging</h2>
+                        <p>
+                            If you opt in to receive text messages from Peak Growth Digital LLC — for example, through our website chat widget or by providing your phone number — the following terms apply:
+                        </p>
+                        <ul className="list-disc pl-6 mb-4">
+                            <li><strong>Consent:</strong> We send SMS messages only to individuals who have expressly opted in. Messages may relate to customer support, account or service updates, appointment scheduling, and information you have requested.</li>
+                            <li><strong>Message frequency:</strong> Message frequency varies based on your interactions with us.</li>
+                            <li><strong>Rates:</strong> Message and data rates may apply, depending on your mobile carrier and plan.</li>
+                            <li><strong>Opt-out:</strong> You can cancel SMS messages at any time by replying STOP. We will send a confirmation and stop messaging you unless you opt in again.</li>
+                            <li><strong>Help:</strong> Reply HELP for assistance, or contact us at info@peakgrowthdigital.com.</li>
+                        </ul>
+                        <p>
+                            No mobile information, including your phone number and SMS opt-in consent, will be shared with third parties for marketing or promotional purposes, and it will never be sold or rented. We share it only with the service providers that help us operate the messaging service (such as our SMS platform provider), solely to deliver the messages you have requested.
+                        </p>
+                    </section>
+
+                    <section className="mb-8">
+                        <h2 className="text-2xl font-semibold mb-4">9. Contact Us</h2>
                         <p>
                             If you have questions about this Privacy Policy, please contact us at:
                         </p>
