@@ -44,6 +44,12 @@ export default function App() {
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
+        <script
+          src="https://widgets.leadconnectorhq.com/loader.js"
+          data-resources-url="https://widgets.leadconnectorhq.com/chat-widget/loader.js"
+          data-widget-id="6a1a7d247645b2ba9afa79fd"
+          data-source="WEB_USER"
+        ></script>
       </body>
     </html>
   );

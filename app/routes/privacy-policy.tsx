@@ -96,7 +96,6 @@ export default function PrivacyPolicy() {
                             <li>Analytics providers</li>
                             <li>Payment processors</li>
                             <li>Legal authorities when required</li>
-                            <li>Affiliated companies within our corporate group</li>
                         </ul>
                     </section>
 
