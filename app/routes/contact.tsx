@@ -1,7 +1,7 @@
 import React from 'react';
 import type { MetaFunction, ActionFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Form, useActionData, useNavigation } from "@remix-run/react";
+import { Form, Link, useActionData, useNavigation } from "@remix-run/react";
 import { PrismaClient } from "@prisma/client";
 import nodemailer from "nodemailer";
 
@@ -23,6 +23,8 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
+  const phone = ((formData.get("phone") as string) || "").trim();
+  const smsConsent = formData.get("smsConsent") === "on";
   const message = formData.get("message") as string;
 
   const errors: { [key: string]: string } = {};
@@ -30,22 +32,26 @@ export const action: ActionFunction = async ({ request }) => {
   if (!email) errors.email = "Email is required";
   else if (!validateEmail(email)) errors.email = "Invalid email address";
   if (!message) errors.message = "Message is required";
+  if (smsConsent && !phone) errors.phone = "Enter your phone number to receive text messages";
 
   if (Object.keys(errors).length > 0) {
     return json({ errors }, { status: 400 });
   }
 
+  // Record SMS opt-in for consent record-keeping
+  const consentRecord = smsConsent && phone
+    ? `\n\n--- SMS opt-in ---\nSMS consent: YES\nPhone: ${phone}\nConsent captured: ${new Date().toISOString()} via https://peakgrowthdigital.com/contact`
+    : (phone ? `\n\nPhone: ${phone}` : "");
+
   try {
-    // Save to database and send email (unchanged)
-    const contact = await prisma.contact.create({
+    await prisma.contact.create({
       data: {
         name,
         email,
-        message,
+        message: message + consentRecord,
       },
     });
 
-    // Send email
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: parseInt(process.env.SMTP_PORT || '587'),
@@ -59,7 +65,6 @@ export const action: ActionFunction = async ({ request }) => {
       }
     });
 
-
     await transporter.sendMail({
       from: process.env.SMTP_FROM,
       to: process.env.SMTP_TO,
@@ -67,12 +72,16 @@ export const action: ActionFunction = async ({ request }) => {
       text: `
         Name: ${name}
         Email: ${email}
+        Phone: ${phone || "(not provided)"}
+        SMS consent: ${smsConsent && phone ? "YES (opted in)" : "no"}
         Message: ${message}
       `,
       html: `
         <h2>New Contact Form Submission</h2>
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Phone:</strong> ${phone || "(not provided)"}</p>
+        <p><strong>SMS consent:</strong> ${smsConsent && phone ? "YES (opted in)" : "no"}</p>
         <p><strong>Message:</strong> ${message}</p>
       `,
     });
@@ -121,11 +130,30 @@ export default function Contact() {
           {actionData?.errors?.email && <p className="text-error text-sm mt-1">{actionData.errors.email}</p>}
         </div>
         <div className="form-control mb-4">
+          <label className="label" htmlFor="phone">
+            <span className="label-text">Phone <span className="text-base-content/60">(optional — required for text updates)</span></span>
+          </label>
+          <input type="tel" id="phone" name="phone" autoComplete="tel" placeholder="(555) 555-5555" className={`input input-bordered ${actionData?.errors?.phone ? 'input-error' : ''}`} />
+          {actionData?.errors?.phone && <p className="text-error text-sm mt-1">{actionData.errors.phone}</p>}
+        </div>
+        <div className="form-control mb-4">
           <label className="label" htmlFor="message">
             <span className="label-text">Message</span>
           </label>
           <textarea id="message" name="message" className={`textarea textarea-bordered h-24 ${actionData?.errors?.message ? 'textarea-error' : ''}`} required></textarea>
           {actionData?.errors?.message && <p className="text-error text-sm mt-1">{actionData.errors.message}</p>}
+        </div>
+        <div className="form-control mb-4">
+          <label className="cursor-pointer flex items-start gap-3">
+            <input type="checkbox" id="smsConsent" name="smsConsent" className="checkbox checkbox-sm mt-1" />
+            <span className="label-text text-sm leading-snug">
+              I agree to receive SMS text messages from Peak Growth Digital LLC at the phone number provided
+              (such as service and account updates, scheduling, and support). Consent is not a condition of purchase.
+              Message frequency varies. Message and data rates may apply. Reply STOP to opt out or HELP for help.
+              See our <Link to="/privacy-policy" className="link">Privacy Policy</Link> and{" "}
+              <Link to="/terms-of-service" className="link">Terms of Service</Link>.
+            </span>
+          </label>
         </div>
         <button type="submit" className="btn btn-primary" disabled={navigation.state === "submitting"}>
           {navigation.state === "submitting" ? "Sending..." : "Send Message"}
