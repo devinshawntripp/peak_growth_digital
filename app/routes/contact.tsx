@@ -45,15 +45,20 @@ export const action: ActionFunction = async ({ request }) => {
     ? `\n\n--- SMS opt-in ---\nCustomer care consent: ${consentCare ? "YES" : "no"}\nPromotional consent: ${consentPromo ? "YES" : "no"}\nPhone: ${phone}\nConsent captured: ${new Date().toISOString()} via https://peakgrowthdigital.com/contact`
     : (phone ? `\n\nPhone: ${phone}` : "");
 
+  // Persist the opt-in. DB write and email are each non-fatal so a missing/unreachable
+  // database (or SMTP) cannot block consent capture; success if EITHER records it.
+  let recorded = false;
+
   try {
     await prisma.contact.create({
-      data: {
-        name,
-        email,
-        message: message + consentRecord,
-      },
+      data: { name, email, message: message + consentRecord },
     });
+    recorded = true;
+  } catch (dbError) {
+    console.error("Contact DB save failed (continuing):", dbError instanceof Error ? dbError.message : dbError);
+  }
 
+  try {
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: parseInt(process.env.SMTP_PORT || '587'),
@@ -89,12 +94,13 @@ export const action: ActionFunction = async ({ request }) => {
         <p><strong>Message:</strong> ${message}</p>
       `,
     });
-
-    return json({ success: true });
-  } catch (error) {
-    console.error("Error processing contact form:", error);
-    return json({ success: false, error: "An error occurred. Please try again." }, { status: 500 });
+    recorded = true;
+  } catch (emailError) {
+    console.error("Contact email send failed:", emailError instanceof Error ? emailError.message : emailError);
   }
+
+  if (recorded) return json({ success: true });
+  return json({ success: false, error: "An error occurred. Please try again." }, { status: 500 });
 };
 
 export default function Contact() {
