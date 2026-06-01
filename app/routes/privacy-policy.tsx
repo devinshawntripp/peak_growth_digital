@@ -132,7 +132,7 @@ export default function PrivacyPolicy() {
                             If you opt in to receive text messages from Peak Growth Digital LLC — for example, through our website chat widget or by providing your phone number — the following terms apply:
                         </p>
                         <ul className="list-disc pl-6 mb-4">
-                            <li><strong>Consent:</strong> We send SMS messages only to individuals who have expressly opted in. Messages may relate to customer support, account or service updates, appointment scheduling, and information you have requested.</li>
+                            <li><strong>Consent:</strong> We send SMS messages only to individuals who have expressly opted in. Messages may relate to customer support, account or service updates, appointment scheduling, marketing and promotional offers, and information you have requested.</li>
                             <li><strong>Message frequency:</strong> Message frequency varies based on your interactions with us.</li>
                             <li><strong>Rates:</strong> Message and data rates may apply, depending on your mobile carrier and plan.</li>
                             <li><strong>Opt-out:</strong> You can cancel SMS messages at any time by replying STOP. We will send a confirmation and stop messaging you unless you opt in again.</li>

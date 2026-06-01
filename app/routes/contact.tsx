@@ -147,8 +147,7 @@ export default function Contact() {
           <label className="cursor-pointer flex items-start gap-3">
             <input type="checkbox" id="smsConsent" name="smsConsent" className="checkbox checkbox-sm mt-1" />
             <span className="label-text text-sm leading-snug">
-              I agree to receive SMS text messages from Peak Growth Digital LLC at the phone number provided
-              (such as service and account updates, scheduling, and support). Consent is not a condition of purchase.
+              I agree to receive SMS text messages from Peak Growth Digital LLC at the phone number provided, including account and service updates, scheduling, support, and marketing and promotional offers. Consent is not a condition of purchase.
               Message frequency varies. Message and data rates may apply. Reply STOP to opt out or HELP for help.
               See our <Link to="/privacy-policy" className="link">Privacy Policy</Link> and{" "}
               <Link to="/terms-of-service" className="link">Terms of Service</Link>.
