@@ -24,7 +24,9 @@ export const action: ActionFunction = async ({ request }) => {
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
   const phone = ((formData.get("phone") as string) || "").trim();
-  const smsConsent = formData.get("smsConsent") === "on";
+  const consentCare = formData.get("consentCare") === "on";
+  const consentPromo = formData.get("consentPromo") === "on";
+  const smsConsent = consentCare || consentPromo;
   const message = formData.get("message") as string;
 
   const errors: { [key: string]: string } = {};
@@ -38,9 +40,9 @@ export const action: ActionFunction = async ({ request }) => {
     return json({ errors }, { status: 400 });
   }
 
-  // Record SMS opt-in for consent record-keeping
+  // Record SMS opt-in for consent record-keeping (separate consents)
   const consentRecord = smsConsent && phone
-    ? `\n\n--- SMS opt-in ---\nSMS consent: YES\nPhone: ${phone}\nConsent captured: ${new Date().toISOString()} via https://peakgrowthdigital.com/contact`
+    ? `\n\n--- SMS opt-in ---\nCustomer care consent: ${consentCare ? "YES" : "no"}\nPromotional consent: ${consentPromo ? "YES" : "no"}\nPhone: ${phone}\nConsent captured: ${new Date().toISOString()} via https://peakgrowthdigital.com/contact`
     : (phone ? `\n\nPhone: ${phone}` : "");
 
   try {
@@ -73,7 +75,8 @@ export const action: ActionFunction = async ({ request }) => {
         Name: ${name}
         Email: ${email}
         Phone: ${phone || "(not provided)"}
-        SMS consent: ${smsConsent && phone ? "YES (opted in)" : "no"}
+        Customer care SMS consent: ${consentCare && phone ? "YES" : "no"}
+        Promotional SMS consent: ${consentPromo && phone ? "YES" : "no"}
         Message: ${message}
       `,
       html: `
@@ -81,7 +84,8 @@ export const action: ActionFunction = async ({ request }) => {
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>Phone:</strong> ${phone || "(not provided)"}</p>
-        <p><strong>SMS consent:</strong> ${smsConsent && phone ? "YES (opted in)" : "no"}</p>
+        <p><strong>Customer care SMS consent:</strong> ${consentCare && phone ? "YES" : "no"}</p>
+        <p><strong>Promotional SMS consent:</strong> ${consentPromo && phone ? "YES" : "no"}</p>
         <p><strong>Message:</strong> ${message}</p>
       `,
     });
@@ -144,15 +148,27 @@ export default function Contact() {
           {actionData?.errors?.message && <p className="text-error text-sm mt-1">{actionData.errors.message}</p>}
         </div>
         <div className="form-control mb-4">
-          <label className="cursor-pointer flex items-start gap-3">
-            <input type="checkbox" id="smsConsent" name="smsConsent" className="checkbox checkbox-sm mt-1" />
+          <p className="text-sm font-medium mb-2">Text message preferences (optional — choose one or both):</p>
+          <label className="cursor-pointer flex items-start gap-3 mb-2">
+            <input type="checkbox" id="consentCare" name="consentCare" className="checkbox checkbox-sm mt-1" />
             <span className="label-text text-sm leading-snug">
-              I agree to receive SMS text messages from Peak Growth Digital LLC at the phone number provided, including account and service updates, scheduling, support, and marketing and promotional offers. Consent is not a condition of purchase.
-              Message frequency varies. Message and data rates may apply. Reply STOP to opt out or HELP for help.
-              See our <Link to="/privacy-policy" className="link">Privacy Policy</Link> and{" "}
-              <Link to="/terms-of-service" className="link">Terms of Service</Link>.
+              <strong>Customer care:</strong> I agree to receive customer care / service SMS text messages from
+              Peak Growth Digital LLC (responses to inquiries, appointment coordination, and follow-ups) at the number provided.
             </span>
           </label>
+          <label className="cursor-pointer flex items-start gap-3 mb-2">
+            <input type="checkbox" id="consentPromo" name="consentPromo" className="checkbox checkbox-sm mt-1" />
+            <span className="label-text text-sm leading-snug">
+              <strong>Promotions:</strong> I agree to receive marketing / promotional SMS text messages from
+              Peak Growth Digital LLC (special offers, discounts, and event promotions) at the number provided.
+            </span>
+          </label>
+          <p className="text-xs text-base-content/70 leading-snug mt-1">
+            Each consent is separate and optional. Consent is not a condition of purchase. Message frequency varies.
+            Message and data rates may apply. Reply STOP to opt out or HELP for help.
+            See our <Link to="/privacy-policy" className="link">Privacy Policy</Link> and{" "}
+            <Link to="/terms-of-service" className="link">Terms of Service</Link>.
+          </p>
         </div>
         <button type="submit" className="btn btn-primary" disabled={navigation.state === "submitting"}>
           {navigation.state === "submitting" ? "Sending..." : "Send Message"}
