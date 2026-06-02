@@ -43,6 +43,7 @@ export default function App() {
         s.src = "https://widgets.leadconnectorhq.com/loader.js";
         s.setAttribute("data-resources-url", "https://widgets.leadconnectorhq.com/chat-widget/loader.js");
         s.setAttribute("data-widget-id", "6a1a7d247645b2ba9afa79fd");
+        s.setAttribute("data-source", "WEB_USER");
         document.body.appendChild(s);
       }
     } else {
