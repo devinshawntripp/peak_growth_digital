@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { MetaFunction, LinksFunction } from "@remix-run/node";
 import {
   Links,
@@ -25,9 +25,33 @@ export const links: LinksFunction = () => [
 export default function App() {
   const { theme } = useTheme();
   const location = useLocation();
+  // Keep the chat widget off pages that collect a phone number / SMS opt-in
+  // consent (carrier A2P checklist item 6).
   const noWidgetPaths = ["/contact", "/sms-opt-in"];
   const showChatWidget = !noWidgetPaths.some((p) => location.pathname.startsWith(p));
 
+  // Inject the LeadConnector chat widget on the client. A <script> rendered in
+  // SSR JSX is not reliably executed after Remix hydration, so we append it
+  // directly to the DOM (which the browser always runs) and clean it up on the
+  // no-widget pages.
+  useEffect(() => {
+    const LOADER_ID = "lc-chat-widget-loader";
+    if (showChatWidget) {
+      if (!document.getElementById(LOADER_ID)) {
+        const s = document.createElement("script");
+        s.id = LOADER_ID;
+        s.src = "https://widgets.leadconnectorhq.com/loader.js";
+        s.setAttribute("data-resources-url", "https://widgets.leadconnectorhq.com/chat-widget/loader.js");
+        s.setAttribute("data-widget-id", "6a1a7d247645b2ba9afa79fd");
+        document.body.appendChild(s);
+      }
+    } else {
+      document.getElementById(LOADER_ID)?.remove();
+      document
+        .querySelectorAll("chat-widget, [data-chat-widget], [data-loader-instance-id]")
+        .forEach((el) => el.remove());
+    }
+  }, [showChatWidget]);
 
   return (
     <html lang="en" data-theme={theme}>
@@ -48,14 +72,6 @@ export default function App() {
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
-        {showChatWidget && (
-          <script
-            src="https://widgets.leadconnectorhq.com/loader.js"
-            data-resources-url="https://widgets.leadconnectorhq.com/chat-widget/loader.js"
-            data-widget-id="6a1a7d247645b2ba9afa79fd"
-            data-source="WEB_USER"
-          ></script>
-        )}
       </body>
     </html>
   );
