@@ -25,7 +25,8 @@ export const links: LinksFunction = () => [
 export default function App() {
   const { theme } = useTheme();
   const location = useLocation();
-  const showChatWidget = !location.pathname.startsWith("/contact");
+  const noWidgetPaths = ["/contact", "/sms-opt-in"];
+  const showChatWidget = !noWidgetPaths.some((p) => location.pathname.startsWith(p));
 
 
   return (
